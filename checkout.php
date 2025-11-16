@@ -34,8 +34,13 @@ $fileMapping = [
 
 // Se veio de um arquivo de checkout, mapear para o link correto
 $requestedFile = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
-if (!$linkPagina && isset($fileMapping[$requestedFile])) {
-    $linkPagina = $fileMapping[$requestedFile];
+// Também verificar se veio via parâmetro p
+if (!$linkPagina) {
+    if (isset($fileMapping[$requestedFile])) {
+        $linkPagina = $fileMapping[$requestedFile];
+    } elseif (isset($_GET['p'])) {
+        $linkPagina = $_GET['p'];
+    }
 }
 
 // Buscar produto pelo link_pagina
