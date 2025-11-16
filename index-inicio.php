@@ -34,55 +34,77 @@ $htmlContent = file_get_contents($htmlFile);
 // Gerar a seção de produtos dinâmica
 $produtosHTML = renderProdutosCards($listaProdutos);
 
-// Método mais robusto: usar regex para encontrar toda a section desde o comentário até o fechamento
-// Padrão: comentário + section completa (incluindo todo conteúdo até </section>)
-$pattern = '/<!-- =======================================================\s+BLOCO PERSONALIZADO DE PRODUTOS.*?<section[^>]*id="produtos-lucas-template"[^>]*>.*?<\/section>/s';
-
-// Tentar substituir
-$replaced = preg_replace($pattern, $produtosHTML, $htmlContent, 1);
-
-// Se a substituição funcionou (string mudou), usar o resultado
-if ($replaced !== null && $replaced !== $htmlContent) {
-    $htmlContent = $replaced;
+// Verificar se há produtos para exibir
+if (empty($listaProdutos)) {
+    // Se não há produtos, manter o HTML original
+    error_log("AVISO: Nenhum produto ativo - mantendo HTML original");
 } else {
-    // Método alternativo: procurar apenas pela section com ID
-    $pattern2 = '/<section[^>]*id="produtos-lucas-template"[^>]*>.*?<\/section>/s';
-    $replaced2 = preg_replace($pattern2, $produtosHTML, $htmlContent, 1);
-    if ($replaced2 !== null && $replaced2 !== $htmlContent) {
-        $htmlContent = $replaced2;
-    } else {
-        // Último recurso: procurar pelo comentário e substituir tudo até a próxima section ou script
-        $commentStart = strpos($htmlContent, '<!-- =======================================================');
-        if ($commentStart !== false) {
-            $sectionStart = strpos($htmlContent, '<section', $commentStart);
-            if ($sectionStart !== false) {
-                // Encontrar o fechamento correto da section (pode ter múltiplas sections aninhadas)
-                $depth = 0;
-                $pos = $sectionStart;
-                $sectionEnd = false;
-                while ($pos < strlen($htmlContent)) {
-                    $nextOpen = strpos($htmlContent, '<section', $pos + 1);
-                    $nextClose = strpos($htmlContent, '</section>', $pos);
-                    
-                    if ($nextClose === false) break;
-                    
-                    if ($nextOpen !== false && $nextOpen < $nextClose) {
-                        $depth++;
-                        $pos = $nextOpen;
-                    } else {
-                        if ($depth === 0) {
-                            $sectionEnd = $nextClose + strlen('</section>');
-                            break;
-                        }
-                        $depth--;
-                        $pos = $nextClose;
-                    }
-                }
+    // Método mais seguro: encontrar a section pelo ID e substituir apenas o conteúdo interno
+    $sectionId = 'id="produtos-lucas-template"';
+    $sectionStart = strpos($htmlContent, '<section', strpos($htmlContent, $sectionId) - 100);
+    
+    if ($sectionStart !== false) {
+        // Encontrar onde começa o conteúdo da section (após a tag de abertura)
+        $sectionTagEnd = strpos($htmlContent, '>', $sectionStart);
+        if ($sectionTagEnd !== false) {
+            $sectionTagEnd++; // Incluir o >
+            
+            // Encontrar o fechamento da section
+            // Procurar pela tag </section> que fecha esta section específica
+            $searchStart = $sectionTagEnd;
+            $sectionEnd = false;
+            $depth = 1; // Já estamos dentro de uma section
+            
+            // Procurar por todas as sections até encontrar o fechamento correto
+            while ($searchStart < strlen($htmlContent) && $depth > 0) {
+                $nextOpen = strpos($htmlContent, '<section', $searchStart);
+                $nextClose = strpos($htmlContent, '</section>', $searchStart);
                 
-                if ($sectionEnd !== false) {
-                    $htmlContent = substr_replace($htmlContent, $produtosHTML, $sectionStart, $sectionEnd - $sectionStart);
+                if ($nextClose === false) break;
+                
+                // Se encontrou uma section aberta antes do fechamento, aumenta a profundidade
+                if ($nextOpen !== false && $nextOpen < $nextClose) {
+                    $depth++;
+                    $searchStart = $nextOpen + 1;
+                } else {
+                    $depth--;
+                    if ($depth === 0) {
+                        $sectionEnd = $nextClose;
+                        break;
+                    }
+                    $searchStart = $nextClose + 1;
                 }
             }
+            
+            if ($sectionEnd !== false) {
+                // Substituir apenas o conteúdo interno da section, mantendo a tag de abertura e fechamento
+                $sectionOpening = substr($htmlContent, $sectionStart, $sectionTagEnd - $sectionStart);
+                $sectionClosing = '</section>';
+                
+                // Extrair apenas o conteúdo interno do HTML gerado (sem a tag section)
+                $produtosContent = $produtosHTML;
+                // Se o HTML gerado já tem a tag section, remover
+                if (strpos($produtosContent, '<section') === 0) {
+                    $produtosContent = preg_replace('/^<section[^>]*>/', '', $produtosContent);
+                    $produtosContent = preg_replace('/<\/section>$/', '', $produtosContent);
+                }
+                
+                // Montar a nova section completa
+                $newSection = $sectionOpening . $produtosContent . $sectionClosing;
+                
+                // Substituir toda a section antiga pela nova
+                $htmlContent = substr_replace($htmlContent, $newSection, $sectionStart, $sectionEnd + strlen('</section>') - $sectionStart);
+            } else {
+                // Fallback: usar regex simples
+                $pattern = '/<section[^>]*id="produtos-lucas-template"[^>]*>.*?<\/section>/s';
+                $htmlContent = preg_replace($pattern, $produtosHTML, $htmlContent, 1);
+            }
+        }
+    } else {
+        // Se não encontrou, tentar inserir antes do script
+        $scriptPos = strpos($htmlContent, '<script>', strpos($htmlContent, 'produtos-lucas-template'));
+        if ($scriptPos !== false) {
+            $htmlContent = substr_replace($htmlContent, $produtosHTML . "\n  ", $scriptPos, 0);
         }
     }
 }
