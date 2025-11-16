@@ -57,7 +57,10 @@ try {
     <link rel="stylesheet" href="assets/admin.css">
     <style>
         body {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(129, 140, 248, 0.1) 0%, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(167, 139, 250, 0.1) 0%, transparent 50%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -112,7 +115,28 @@ try {
         }
         .btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(129, 140, 248, 0.4);
+            opacity: 0.9;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            background: var(--dark-secondary);
+            color: var(--text);
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+            background: var(--dark-tertiary);
+        }
+        .form-group input::placeholder {
+            color: var(--text-muted);
         }
         .info-box {
             background: var(--bg-card);
