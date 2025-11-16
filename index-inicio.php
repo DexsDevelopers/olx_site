@@ -34,41 +34,57 @@ $htmlContent = file_get_contents($htmlFile);
 // Gerar a seção de produtos dinâmica
 $produtosHTML = renderProdutosCards($listaProdutos);
 
-// Encontrar a posição da seção de produtos
-$startComment = '<!-- =======================================================';
-$endSection = '</section>';
-$sectionId = 'id="produtos-lucas-template"';
+// Método mais robusto: usar regex para encontrar toda a section desde o comentário até o fechamento
+// Padrão: comentário + section completa (incluindo todo conteúdo até </section>)
+$pattern = '/<!-- =======================================================\s+BLOCO PERSONALIZADO DE PRODUTOS.*?<section[^>]*id="produtos-lucas-template"[^>]*>.*?<\/section>/s';
 
-// Método 1: Procurar pelo comentário até o fechamento da section
-$commentPos = strpos($htmlContent, $startComment);
-$sectionStartPos = strpos($htmlContent, '<section', $commentPos !== false ? $commentPos : 0);
+// Tentar substituir
+$replaced = preg_replace($pattern, $produtosHTML, $htmlContent, 1);
 
-if ($sectionStartPos !== false) {
-    // Encontrar o fechamento da section correspondente
-    $sectionEndPos = strpos($htmlContent, $endSection, $sectionStartPos);
-    if ($sectionEndPos !== false) {
-        $sectionEndPos += strlen($endSection);
-        // Substituir toda a seção
-        $htmlContent = substr_replace($htmlContent, $produtosHTML, $sectionStartPos, $sectionEndPos - $sectionStartPos);
+// Se a substituição funcionou (string mudou), usar o resultado
+if ($replaced !== null && $replaced !== $htmlContent) {
+    $htmlContent = $replaced;
+} else {
+    // Método alternativo: procurar apenas pela section com ID
+    $pattern2 = '/<section[^>]*id="produtos-lucas-template"[^>]*>.*?<\/section>/s';
+    $replaced2 = preg_replace($pattern2, $produtosHTML, $htmlContent, 1);
+    if ($replaced2 !== null && $replaced2 !== $htmlContent) {
+        $htmlContent = $replaced2;
+    } else {
+        // Último recurso: procurar pelo comentário e substituir tudo até a próxima section ou script
+        $commentStart = strpos($htmlContent, '<!-- =======================================================');
+        if ($commentStart !== false) {
+            $sectionStart = strpos($htmlContent, '<section', $commentStart);
+            if ($sectionStart !== false) {
+                // Encontrar o fechamento correto da section (pode ter múltiplas sections aninhadas)
+                $depth = 0;
+                $pos = $sectionStart;
+                $sectionEnd = false;
+                while ($pos < strlen($htmlContent)) {
+                    $nextOpen = strpos($htmlContent, '<section', $pos + 1);
+                    $nextClose = strpos($htmlContent, '</section>', $pos);
+                    
+                    if ($nextClose === false) break;
+                    
+                    if ($nextOpen !== false && $nextOpen < $nextClose) {
+                        $depth++;
+                        $pos = $nextOpen;
+                    } else {
+                        if ($depth === 0) {
+                            $sectionEnd = $nextClose + strlen('</section>');
+                            break;
+                        }
+                        $depth--;
+                        $pos = $nextClose;
+                    }
+                }
+                
+                if ($sectionEnd !== false) {
+                    $htmlContent = substr_replace($htmlContent, $produtosHTML, $sectionStart, $sectionEnd - $sectionStart);
+                }
+            }
+        }
     }
-}
-
-// Método 2: Se não encontrou, tentar pelo ID diretamente
-if (strpos($htmlContent, $sectionId) !== false && strpos($htmlContent, 'Produtos da Bianca Moraes') !== false) {
-    // Procurar pela section com o ID específico
-    $pattern = '/<section[^>]*id="produtos-lucas-template"[^>]*>.*?<\/section>/s';
-    $matches = [];
-    if (preg_match($pattern, $htmlContent, $matches)) {
-        $htmlContent = preg_replace($pattern, $produtosHTML, $htmlContent, 1);
-    }
-}
-
-// Método 3: Substituição mais agressiva - procurar qualquer section com produtos estáticos
-if (strpos($htmlContent, 'Máquina de lavar e secar Samsung') !== false || 
-    strpos($htmlContent, 'Geladeira Brastemp Frost Free') !== false) {
-    // Encontrar a section que contém produtos estáticos
-    $pattern = '/<section[^>]*id="produtos-lucas-template"[^>]*>.*?<\/section>/s';
-    $htmlContent = preg_replace($pattern, $produtosHTML, $htmlContent, 1);
 }
 
 // Output do HTML final
