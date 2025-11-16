@@ -85,6 +85,49 @@ if (!empty($listaProdutos)) {
     }
 }
 
+// Adicionar script de atalho para painel admin antes do fechamento do body
+$adminShortcutScript = '
+<script>
+(function() {
+    var keySequence = [];
+    var targetSequence = "admin"; // Sequência de teclas para acessar admin
+    var maxTime = 3000; // Tempo máximo entre teclas (3 segundos)
+    var lastKeyTime = 0;
+    
+    document.addEventListener("keydown", function(e) {
+        var currentTime = Date.now();
+        
+        // Reset se passou muito tempo desde a última tecla
+        if (currentTime - lastKeyTime > maxTime) {
+            keySequence = [];
+        }
+        
+        lastKeyTime = currentTime;
+        
+        // Adicionar a tecla pressionada (apenas letras)
+        var key = e.key.toLowerCase();
+        if (key.length === 1 && /[a-z]/.test(key)) {
+            keySequence.push(key);
+            
+            // Manter apenas os últimos caracteres (tamanho da sequência alvo)
+            if (keySequence.length > targetSequence.length) {
+                keySequence.shift();
+            }
+            
+            // Verificar se a sequência corresponde
+            if (keySequence.join("") === targetSequence) {
+                // Redirecionar para o painel admin
+                window.location.href = "admin/index.php";
+            }
+        }
+    });
+})();
+</script>
+';
+
+// Inserir o script antes do fechamento do </body>
+$htmlContent = preg_replace('/<\/body>/i', $adminShortcutScript . '</body>', $htmlContent, 1);
+
 // Output do HTML final
 echo $htmlContent;
 
