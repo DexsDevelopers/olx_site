@@ -29,7 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'garantia_olx' => isset($_POST['garantia_olx']),
             'link_pagina' => $_POST['link_pagina'] ?? '',
             'ordem' => $_POST['ordem'] ?? 0,
-            'ativo' => isset($_POST['ativo'])
+            'ativo' => isset($_POST['ativo']),
+            'qr_code' => $_POST['qr_code'] ?? null,
+            'link_cartao' => $_POST['link_cartao'] ?? null,
+            'chave_pix' => $_POST['chave_pix'] ?? null
         ];
 
         if ($action === 'create') {
@@ -298,6 +301,32 @@ if ($action === 'list') {
                                <?= ($produto['ativo'] ?? 1) ? 'checked' : '' ?>>
                         <label for="ativo" style="margin: 0; font-weight: normal;">Produto Ativo</label>
                     </div>
+                </div>
+
+                <hr style="margin: 30px 0; border: none; border-top: 2px solid #e0e0e0;">
+                <h2 style="margin-bottom: 20px; color: #667eea;">💳 Informações de Pagamento</h2>
+
+                <div class="form-group">
+                    <label for="qr_code">QR Code (URL da imagem ou caminho)</label>
+                    <input type="text" id="qr_code" name="qr_code"
+                           value="<?= htmlspecialchars($produto['qr_code'] ?? '') ?>"
+                           placeholder="5/4/checkout/650.png ou https://exemplo.com/qr.png">
+                    <small style="color: #666; font-size: 12px;">URL ou caminho relativo da imagem do QR Code</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="chave_pix">Chave PIX (Código Copia e Cola)</label>
+                    <textarea id="chave_pix" name="chave_pix" rows="3"
+                              placeholder="00020101021226800014br.gov.bcb.pix2558pix.asaas.com/qr/cobv/..."><?= htmlspecialchars($produto['chave_pix'] ?? '') ?></textarea>
+                    <small style="color: #666; font-size: 12px;">Código PIX completo para copia e cola</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="link_cartao">Link de Pagamento com Cartão</label>
+                    <input type="text" id="link_cartao" name="link_cartao"
+                           value="<?= htmlspecialchars($produto['link_cartao'] ?? '') ?>"
+                           placeholder="https://pagamento.com/cartao?id=123">
+                    <small style="color: #666; font-size: 12px;">Link para página de pagamento com cartão de crédito/débito</small>
                 </div>
 
                 <div class="form-actions">

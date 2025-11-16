@@ -25,8 +25,8 @@ class Produtos {
     }
 
     public function criar($dados) {
-        $sql = "INSERT INTO produtos (titulo, descricao, preco, imagem_principal, localizacao, data_publicacao, hora_publicacao, garantia_olx, link_pagina, ordem, ativo) 
-                VALUES (:titulo, :descricao, :preco, :imagem_principal, :localizacao, :data_publicacao, :hora_publicacao, :garantia_olx, :link_pagina, :ordem, :ativo)";
+        $sql = "INSERT INTO produtos (titulo, descricao, preco, imagem_principal, localizacao, data_publicacao, hora_publicacao, garantia_olx, link_pagina, ordem, ativo, qr_code, link_cartao, chave_pix) 
+                VALUES (:titulo, :descricao, :preco, :imagem_principal, :localizacao, :data_publicacao, :hora_publicacao, :garantia_olx, :link_pagina, :ordem, :ativo, :qr_code, :link_cartao, :chave_pix)";
         
         $params = [
             'titulo' => $dados['titulo'] ?? '',
@@ -39,7 +39,10 @@ class Produtos {
             'garantia_olx' => isset($dados['garantia_olx']) ? 1 : 0,
             'link_pagina' => $dados['link_pagina'] ?? '',
             'ordem' => intval($dados['ordem'] ?? 0),
-            'ativo' => isset($dados['ativo']) ? 1 : 0
+            'ativo' => isset($dados['ativo']) ? 1 : 0,
+            'qr_code' => $dados['qr_code'] ?? null,
+            'link_cartao' => $dados['link_cartao'] ?? null,
+            'chave_pix' => $dados['chave_pix'] ?? null
         ];
 
         $this->db->query($sql, $params);
@@ -58,7 +61,10 @@ class Produtos {
                 garantia_olx = :garantia_olx,
                 link_pagina = :link_pagina,
                 ordem = :ordem,
-                ativo = :ativo
+                ativo = :ativo,
+                qr_code = :qr_code,
+                link_cartao = :link_cartao,
+                chave_pix = :chave_pix
                 WHERE id = :id";
 
         $params = [
@@ -73,7 +79,10 @@ class Produtos {
             'garantia_olx' => isset($dados['garantia_olx']) ? 1 : 0,
             'link_pagina' => $dados['link_pagina'] ?? '',
             'ordem' => intval($dados['ordem'] ?? 0),
-            'ativo' => isset($dados['ativo']) ? 1 : 0
+            'ativo' => isset($dados['ativo']) ? 1 : 0,
+            'qr_code' => $dados['qr_code'] ?? null,
+            'link_cartao' => $dados['link_cartao'] ?? null,
+            'chave_pix' => $dados['chave_pix'] ?? null
         ];
 
         try {
