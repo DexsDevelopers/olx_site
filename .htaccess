@@ -16,6 +16,14 @@ DirectoryIndex index-inicio.php index-inicio.html index.php index.html
     RewriteCond %{REQUEST_FILENAME} \.html$
     RewriteCond %{REQUEST_URI} ^/(index-iphone|index-airfry|index-cama|index-maquina-de-lavar|index)\.html$
     RewriteRule ^(.*)\.html$ produto.php?p=$1.html [L,QSA]
+    
+    # Redirecionar páginas de checkout para checkout.php
+    RewriteCond %{REQUEST_URI} ^/5/4/checkout/(index2|index2-iphone|index2-cama|index-airfry|index-maquina-de-lavar)\.html$
+    RewriteRule ^5/4/checkout/(.*)\.html$ checkout.php?p=$1.html [L,QSA]
+    
+    # Redirecionar páginas principais 5/4/ para checkout.php também
+    RewriteCond %{REQUEST_URI} ^/5/4/(index|index-iphone|index-cama|index-airfry|index-maquina-de-lavar)\.html$
+    RewriteRule ^5/4/(.*)\.html$ checkout.php?p=$1.html [L,QSA]
 </IfModule>
 
 # Desabilitar cache para arquivos PHP e HTML
