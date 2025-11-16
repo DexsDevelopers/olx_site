@@ -80,6 +80,12 @@ body {
     flex-wrap: wrap;
 }
 
+.header-user span {
+    color: var(--text);
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
 /* Buttons */
 .btn {
     padding: 0.625rem 1.25rem;
@@ -225,12 +231,14 @@ body {
 }
 
 .stat-card .number {
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: 700;
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    line-height: 1.2;
+    margin-top: 0.5rem;
 }
 
 /* Table Container */
@@ -285,6 +293,11 @@ td {
     border-bottom: 1px solid var(--border);
     font-size: 0.875rem;
     color: var(--text);
+}
+
+td strong {
+    color: var(--text);
+    font-weight: 600;
 }
 
 tbody tr {
@@ -452,6 +465,14 @@ img {
     object-fit: cover;
     border-radius: var(--radius-sm);
     border: 2px solid var(--border);
+    background: var(--dark-secondary);
+    transition: all 0.2s ease;
+}
+
+.product-image:hover {
+    border-color: var(--primary);
+    transform: scale(1.05);
+    box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
 }
 
 /* Responsive */
@@ -593,6 +614,7 @@ h2 {
 .empty-state p {
     margin-bottom: 1rem;
     font-size: 1rem;
+    color: var(--text-light);
 }
 
 .empty-state a {
@@ -600,11 +622,18 @@ h2 {
     text-decoration: none;
     font-weight: 600;
     transition: color 0.2s ease;
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: rgba(129, 140, 248, 0.1);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(129, 140, 248, 0.3);
 }
 
 .empty-state a:hover {
     color: var(--secondary);
-    text-decoration: underline;
+    background: rgba(167, 139, 250, 0.15);
+    border-color: rgba(167, 139, 250, 0.4);
+    transform: translateY(-2px);
 }
 
 /* Product Image */
