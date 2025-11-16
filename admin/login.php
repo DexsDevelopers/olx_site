@@ -65,13 +65,14 @@ try {
             padding: 1.25rem;
         }
         .login-container {
-            background: white;
+            background: var(--bg-card);
             border-radius: var(--radius);
             box-shadow: var(--shadow-lg);
             padding: 2.5rem;
             width: 100%;
             max-width: 400px;
             animation: slideUp 0.3s ease;
+            border: 1px solid var(--border);
         }
         @keyframes slideUp {
             from {
@@ -114,7 +115,7 @@ try {
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
         .info-box {
-            background: var(--light);
+            background: var(--bg-card);
             padding: 1rem;
             border-radius: var(--radius-sm);
             margin-top: 1.5rem;
@@ -126,11 +127,12 @@ try {
             color: var(--text);
         }
         .info-box code {
-            background: var(--border);
+            background: var(--dark-tertiary);
             padding: 0.125rem 0.375rem;
             border-radius: 4px;
             font-family: 'Courier New', monospace;
             font-size: 0.75rem;
+            color: var(--primary);
         }
     </style>
 </head>
