@@ -200,6 +200,47 @@ $htmlContent = preg_replace(
     $htmlContent
 );
 
+// 7. Substituir QR Code se fornecido
+if (!empty($produto['qr_code'])) {
+    $qrCodePath = $produto['qr_code'];
+    // Se for caminho relativo, ajustar para funcionar no checkout
+    if (!preg_match('/^https?:\/\//', $qrCodePath)) {
+        // Se o arquivo está em 5/4/checkout/, manter o caminho relativo
+        if (strpos($qrCodePath, '5/4/checkout/') === 0 || strpos($qrCodePath, 'checkout/') === 0) {
+            // Já está correto
+        } else {
+            // Adicionar caminho base se necessário
+            $qrCodePath = '5/4/checkout/' . ltrim($qrCodePath, '/');
+        }
+    }
+    $htmlContent = preg_replace(
+        '/<img[^>]*id="pix-qr"[^>]*src="[^"]*"[^>]*>/i',
+        '<img src="' . htmlspecialchars($qrCodePath) . '" alt="QR Code Pix" id="pix-qr" width="220">',
+        $htmlContent
+    );
+}
+
+// 8. Substituir Chave PIX se fornecida
+if (!empty($produto['chave_pix'])) {
+    $chavePix = htmlspecialchars($produto['chave_pix']);
+    $htmlContent = preg_replace(
+        '/<span[^>]*id="pix-code"[^>]*>.*?<\/span>/i',
+        '<span id="pix-code">' . $chavePix . '</span>',
+        $htmlContent
+    );
+}
+
+// 9. Substituir link de cartão se fornecido (se houver botão ou link de cartão no HTML)
+if (!empty($produto['link_cartao'])) {
+    $linkCartao = htmlspecialchars($produto['link_cartao']);
+    // Procurar por links ou botões de cartão e substituir
+    $htmlContent = preg_replace(
+        '/(href|action)=["\'][^"\']*cart[ao][^"\']*["\']/i',
+        '$1="' . $linkCartao . '"',
+        $htmlContent
+    );
+}
+
 // Output
 echo $htmlContent;
 
