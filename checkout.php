@@ -20,18 +20,21 @@ $produtos = new Produtos();
 $produto = null;
 $linkPagina = $_GET['p'] ?? $_GET['produto'] ?? '';
 
-// Mapear nomes de arquivos para link_pagina
+// Mapear nomes de arquivos de checkout para link_pagina
 $fileMapping = [
     'index2.html' => 'index.html',
     'index2-iphone.html' => 'index-iphone.html',
     'index2-cama.html' => 'index-cama.html',
     'index-airfry.html' => 'index-airfry.html',
     'index-maquina-de-lavar.html' => 'index-maquina-de-lavar.html',
+    'index.html' => 'index.html',
+    'index-iphone.html' => 'index-iphone.html',
+    'index-cama.html' => 'index-cama.html',
 ];
 
 // Se veio de um arquivo de checkout, mapear para o link correto
-$requestedFile = basename($_SERVER['REQUEST_URI']);
-if (isset($fileMapping[$requestedFile])) {
+$requestedFile = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+if (!$linkPagina && isset($fileMapping[$requestedFile])) {
     $linkPagina = $fileMapping[$requestedFile];
 }
 
@@ -74,19 +77,36 @@ $possibleFiles = [
     '5/4/index-maquina-de-lavar.html',
 ];
 
-// Tentar encontrar o arquivo baseado no link_pagina
+// Tentar encontrar o arquivo baseado no link_pagina ou arquivo solicitado
 $linkToFile = [
-    'index.html' => '5/4/checkout/index2.html',
-    'index-iphone.html' => '5/4/checkout/index2-iphone.html',
-    'index-cama.html' => '5/4/checkout/index2-cama.html',
-    'index-airfry.html' => '5/4/checkout/index-airfry.html',
-    'index-maquina-de-lavar.html' => '5/4/checkout/index-maquina-de-lavar.html',
+    'index.html' => ['5/4/checkout/index2.html', '5/4/index.html'],
+    'index-iphone.html' => ['5/4/checkout/index2-iphone.html', '5/4/index-iphone.html'],
+    'index-cama.html' => ['5/4/checkout/index2-cama.html', '5/4/index-cama.html'],
+    'index-airfry.html' => ['5/4/checkout/index-airfry.html', '5/4/index-airfry.html'],
+    'index-maquina-de-lavar.html' => ['5/4/checkout/index-maquina-de-lavar.html', '5/4/index-maquina-de-lavar.html'],
 ];
 
-if (isset($linkToFile[$produto['link_pagina']])) {
-    $htmlFile = $linkToFile[$produto['link_pagina']];
-} else {
-    // Tentar encontrar qualquer arquivo que exista
+// Verificar se o arquivo solicitado existe
+$requestedPath = str_replace('/checkout.php', '', $_SERVER['REQUEST_URI']);
+$requestedPath = ltrim($requestedPath, '/');
+if (strpos($requestedPath, '5/4/') === 0) {
+    if (file_exists(__DIR__ . '/' . $requestedPath)) {
+        $htmlFile = $requestedPath;
+    }
+}
+
+// Se não encontrou, tentar pelo link_pagina
+if (!$htmlFile && isset($linkToFile[$produto['link_pagina']])) {
+    foreach ($linkToFile[$produto['link_pagina']] as $file) {
+        if (file_exists(__DIR__ . '/' . $file)) {
+            $htmlFile = $file;
+            break;
+        }
+    }
+}
+
+// Se ainda não encontrou, tentar qualquer arquivo que exista
+if (!$htmlFile) {
     foreach ($possibleFiles as $file) {
         if (file_exists(__DIR__ . '/' . $file)) {
             $htmlFile = $file;
@@ -99,7 +119,7 @@ if (isset($linkToFile[$produto['link_pagina']])) {
 if (!$htmlFile || !file_exists(__DIR__ . '/' . $htmlFile)) {
     $htmlFile = '5/4/checkout/index2.html';
     if (!file_exists(__DIR__ . '/' . $htmlFile)) {
-        die("Erro: Arquivo de checkout não encontrado!");
+        die("Erro: Arquivo de checkout não encontrado! Produto: " . htmlspecialchars($produto['titulo']));
     }
 }
 
