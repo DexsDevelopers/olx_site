@@ -144,79 +144,7 @@ if ($action === 'list') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $action === 'create' ? 'Novo Produto' : 'Editar Produto' ?> | Painel Admin</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header h1 {
-            font-size: 24px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        .form-container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 30px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: border-color 0.3s;
-        }
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
+    <link rel="stylesheet" href="assets/admin.css">
         .form-checkbox {
             display: flex;
             align-items: center;
@@ -358,7 +286,7 @@ if ($action === 'list') {
                     <div class="form-checkbox">
                         <input type="checkbox" id="garantia_olx" name="garantia_olx" value="1"
                                <?= ($produto['garantia_olx'] ?? 1) ? 'checked' : '' ?>>
-                        <label for="garantia_olx" style="margin: 0; font-weight: normal;">Exibir "Garantia da OLX"</label>
+                        <label for="garantia_olx">Exibir "Garantia da OLX"</label>
                     </div>
                 </div>
 
@@ -366,23 +294,23 @@ if ($action === 'list') {
                     <div class="form-checkbox">
                         <input type="checkbox" id="ativo" name="ativo" value="1"
                                <?= ($produto['ativo'] ?? 1) ? 'checked' : '' ?>>
-                        <label for="ativo" style="margin: 0; font-weight: normal;">Produto Ativo</label>
+                        <label for="ativo">Produto Ativo</label>
                     </div>
                 </div>
 
-                <hr style="margin: 30px 0; border: none; border-top: 2px solid #e0e0e0;">
-                <h2 style="margin-bottom: 20px; color: #667eea;">💳 Informações de Pagamento</h2>
+                <hr>
+                <h2>💳 Informações de Pagamento</h2>
 
                 <div class="form-group">
                     <label for="qr_code_file">QR Code - Upload de Imagem</label>
                     <input type="file" id="qr_code_file" name="qr_code_file" accept="image/jpeg,image/png,image/webp,image/gif">
-                    <small style="color: #666; font-size: 12px;">Faça upload de uma imagem do QR Code (máx. 5MB)</small>
+                    <small>Faça upload de uma imagem do QR Code (máx. 5MB)</small>
                     <?php if (!empty($produto['qr_code']) && !preg_match('/^https?:\/\//', $produto['qr_code'])): ?>
-                        <div style="margin-top: 10px;">
-                            <p style="font-size: 12px; color: #666; margin-bottom: 5px;">Imagem atual:</p>
+                        <div style="margin-top: 1rem;">
+                            <p style="font-size: 0.8125rem; color: var(--text-light); margin-bottom: 0.5rem;">Imagem atual:</p>
                             <img src="../<?= htmlspecialchars($produto['qr_code']) ?>" 
                                  alt="QR Code atual" 
-                                 style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; border-radius: 4px; padding: 5px;">
+                                 style="max-width: 200px; max-height: 200px; border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 0.5rem; background: var(--light);">
                         </div>
                     <?php endif; ?>
                 </div>
@@ -392,14 +320,14 @@ if ($action === 'list') {
                     <input type="text" id="qr_code" name="qr_code"
                            value="<?= htmlspecialchars($produto['qr_code'] ?? '') ?>"
                            placeholder="https://exemplo.com/qr.png ou 5/4/checkout/650.png">
-                    <small style="color: #666; font-size: 12px;">Se não fizer upload, use este campo para URL ou caminho relativo</small>
+                    <small>Se não fizer upload, use este campo para URL ou caminho relativo</small>
                 </div>
 
                 <div class="form-group">
                     <label for="chave_pix">Chave PIX (Código Copia e Cola)</label>
                     <textarea id="chave_pix" name="chave_pix" rows="3"
                               placeholder="00020101021226800014br.gov.bcb.pix2558pix.asaas.com/qr/cobv/..."><?= htmlspecialchars($produto['chave_pix'] ?? '') ?></textarea>
-                    <small style="color: #666; font-size: 12px;">Código PIX completo para copia e cola</small>
+                    <small>Código PIX completo para copia e cola</small>
                 </div>
 
                 <div class="form-group">
@@ -407,7 +335,7 @@ if ($action === 'list') {
                     <input type="text" id="link_cartao" name="link_cartao"
                            value="<?= htmlspecialchars($produto['link_cartao'] ?? '') ?>"
                            placeholder="https://pagamento.com/cartao?id=123">
-                    <small style="color: #666; font-size: 12px;">Link para página de pagamento com cartão de crédito/débito</small>
+                    <small>Link para página de pagamento com cartão de crédito/débito</small>
                 </div>
 
                 <div class="form-actions">

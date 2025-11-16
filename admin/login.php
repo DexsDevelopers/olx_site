@@ -54,107 +54,83 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Painel Admin | <?= defined('SITE_NAME') ? SITE_NAME : 'Admin' ?></title>
+    <link rel="stylesheet" href="assets/admin.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 1.25rem;
         }
         .login-container {
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            padding: 2.5rem;
             width: 100%;
             max-width: 400px;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .login-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 2rem;
         }
         .login-header h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 8px;
+            color: var(--text);
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
         }
         .login-header p {
-            color: #666;
-            font-size: 14px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
+            color: var(--text-light);
+            font-size: 0.875rem;
         }
         .btn-login {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0.875rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.2s ease;
         }
         .btn-login:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-        .alert {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        .alert-error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
-        }
         .info-box {
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            font-size: 13px;
-            color: #666;
+            background: var(--light);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-top: 1.5rem;
+            font-size: 0.8125rem;
+            color: var(--text-light);
+            border: 1px solid var(--border);
         }
         .info-box strong {
-            color: #333;
+            color: var(--text);
         }
         .info-box code {
-            background: #e0e0e0;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: monospace;
+            background: var(--border);
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
         }
     </style>
 </head>
