@@ -1,0 +1,22 @@
+# Configuração para servir index-inicio.php como página padrão
+DirectoryIndex index-inicio.php index-inicio.html index.php index.html
+
+# Habilitar rewrite engine
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Redirecionar index.html para index-inicio.php se existir
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^index\.html$ index-inicio.php [L]
+</IfModule>
+
+# Desabilitar cache para arquivos PHP
+<IfModule mod_headers.c>
+    <FilesMatch "\.(php)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
+

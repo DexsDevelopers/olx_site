@@ -62,7 +62,7 @@ class Produtos {
                 WHERE id = :id";
 
         $params = [
-            'id' => $id,
+            'id' => intval($id),
             'titulo' => $dados['titulo'] ?? '',
             'descricao' => $dados['descricao'] ?? '',
             'preco' => floatval($dados['preco'] ?? 0),
@@ -76,7 +76,15 @@ class Produtos {
             'ativo' => isset($dados['ativo']) ? 1 : 0
         ];
 
-        return $this->db->query($sql, $params);
+        try {
+            $result = $this->db->query($sql, $params);
+            // Log para debug (remover em produção se necessário)
+            error_log("Produto atualizado - ID: $id, Título: " . $params['titulo']);
+            return $result;
+        } catch (Exception $e) {
+            error_log("Erro ao atualizar produto ID $id: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function deletar($id) {
