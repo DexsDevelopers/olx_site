@@ -20,7 +20,7 @@ function renderProdutosCards($produtos) {
         <?php foreach ($produtos as $produto): ?>
           <?php if ($produto['ativo'] == 1): ?>
           <article style="background: #020617; border-radius: 10px; overflow: hidden; border: 1px solid #374151; display: flex; flex-direction: column; box-shadow: 0 6px 18px rgba(0,0,0,0.35);">
-            <a href="<?= htmlspecialchars($produto['link_pagina'] ?: '#') ?>" style="text-decoration:none; color:inherit;">
+            <a href="produto.php?p=<?= htmlspecialchars(urlencode($produto['link_pagina'] ?: 'index.html')) ?>" style="text-decoration:none; color:inherit;">
               <div style="height: 150px; background: #020617; display: flex; align-items: center; justify-content: center; overflow:hidden;">
                 <img src="<?= htmlspecialchars($produto['imagem_principal']) ?>" alt="<?= htmlspecialchars($produto['titulo']) ?>" style="width: 100%; height: 100%; object-fit: cover;">
               </div>
