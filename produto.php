@@ -5,9 +5,10 @@
  */
 
 // Headers para evitar cache
-header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
 header('Pragma: no-cache');
 header('Expires: 0');
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/database.php';

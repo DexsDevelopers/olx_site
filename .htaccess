@@ -5,18 +5,26 @@ DirectoryIndex index-inicio.php index-inicio.html index.php index.html
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
-    # Redirecionar index.html para index-inicio.php se existir
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^index\.html$ index-inicio.php [L]
+    # Redirecionar index.html para index-inicio.php
+    RewriteRule ^index\.html$ index-inicio.php [L,R=301]
+    
+    # Redirecionar index-inicio.html para index-inicio.php
+    RewriteRule ^index-inicio\.html$ index-inicio.php [L,R=301]
+    
+    # Redirecionar páginas de produtos HTML para produto.php
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteCond %{REQUEST_FILENAME} \.html$
+    RewriteCond %{REQUEST_URI} ^/(index-iphone|index-airfry|index-cama|index-maquina-de-lavar|index)\.html$
+    RewriteRule ^(.*)\.html$ produto.php?p=$1.html [L,QSA]
 </IfModule>
 
-# Desabilitar cache para arquivos PHP
+# Desabilitar cache para arquivos PHP e HTML
 <IfModule mod_headers.c>
-    <FilesMatch "\.(php)$">
-        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    <FilesMatch "\.(php|html)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
         Header set Pragma "no-cache"
         Header set Expires "0"
+        Header set Last-Modified "Thu, 01 Jan 1970 00:00:00 GMT"
     </FilesMatch>
 </IfModule>
 
