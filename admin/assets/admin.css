@@ -139,12 +139,14 @@ body {
 }
 
 .btn-secondary {
-    background: var(--border);
+    background: var(--dark-tertiary);
     color: var(--text);
+    border: 1px solid var(--border);
 }
 
 .btn-secondary:hover {
-    background: #d1d5db;
+    background: var(--bg-hover);
+    border-color: var(--border-light);
 }
 
 .btn-sm {
