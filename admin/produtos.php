@@ -15,9 +15,68 @@ $id = $_GET['id'] ?? null;
 $mensagem = '';
 $tipoMensagem = '';
 
+// Processar upload de QR Code
+function processarUploadQRCode($produtoId = null) {
+    if (!isset($_FILES['qr_code_file']) || $_FILES['qr_code_file']['error'] !== UPLOAD_ERR_OK) {
+        return null;
+    }
+    
+    $file = $_FILES['qr_code_file'];
+    
+    // Validar tipo de arquivo
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+    
+    if (!in_array($mimeType, $allowedTypes)) {
+        return null;
+    }
+    
+    // Validar tamanho (máximo 5MB)
+    if ($file['size'] > UPLOAD_MAX_SIZE) {
+        return null;
+    }
+    
+    // Criar diretório de uploads se não existir
+    $uploadDir = __DIR__ . '/../5/4/checkout/qr-codes/';
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+    
+    // Gerar nome único para o arquivo
+    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $fileName = 'qr_' . ($produtoId ?? 'new') . '_' . time() . '.' . $extension;
+    $filePath = $uploadDir . $fileName;
+    
+    // Mover arquivo
+    if (move_uploaded_file($file['tmp_name'], $filePath)) {
+        // Retornar caminho relativo
+        return '5/4/checkout/qr-codes/' . $fileName;
+    }
+    
+    return null;
+}
+
 // Processar ações
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'create' || $action === 'edit') {
+        // Processar upload de QR Code
+        $qrCodePath = null;
+        if (isset($_FILES['qr_code_file']) && $_FILES['qr_code_file']['error'] === UPLOAD_ERR_OK) {
+            $qrCodePath = processarUploadQRCode($id);
+        }
+        
+        // Se não houve upload, usar URL se fornecida
+        if (!$qrCodePath && !empty($_POST['qr_code'])) {
+            $qrCodePath = $_POST['qr_code'];
+        }
+        
+        // Se editando e não mudou nada, manter o valor atual
+        if ($action === 'edit' && !$qrCodePath && !empty($produto['qr_code'])) {
+            $qrCodePath = $produto['qr_code'];
+        }
+        
         $dados = [
             'titulo' => $_POST['titulo'] ?? '',
             'descricao' => $_POST['descricao'] ?? '',
@@ -30,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'link_pagina' => $_POST['link_pagina'] ?? '',
             'ordem' => $_POST['ordem'] ?? 0,
             'ativo' => isset($_POST['ativo']),
-            'qr_code' => $_POST['qr_code'] ?? null,
+            'qr_code' => $qrCodePath,
             'link_cartao' => $_POST['link_cartao'] ?? null,
             'chave_pix' => $_POST['chave_pix'] ?? null
         ];
@@ -227,7 +286,7 @@ if ($action === 'list') {
         <?php endif; ?>
 
         <div class="form-container">
-            <form method="POST" action="">
+            <form method="POST" action="" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="titulo">Título do Produto *</label>
                     <input type="text" id="titulo" name="titulo" 
@@ -307,11 +366,25 @@ if ($action === 'list') {
                 <h2 style="margin-bottom: 20px; color: #667eea;">💳 Informações de Pagamento</h2>
 
                 <div class="form-group">
-                    <label for="qr_code">QR Code (URL da imagem ou caminho)</label>
+                    <label for="qr_code_file">QR Code - Upload de Imagem</label>
+                    <input type="file" id="qr_code_file" name="qr_code_file" accept="image/jpeg,image/png,image/webp,image/gif">
+                    <small style="color: #666; font-size: 12px;">Faça upload de uma imagem do QR Code (máx. 5MB)</small>
+                    <?php if (!empty($produto['qr_code']) && !preg_match('/^https?:\/\//', $produto['qr_code'])): ?>
+                        <div style="margin-top: 10px;">
+                            <p style="font-size: 12px; color: #666; margin-bottom: 5px;">Imagem atual:</p>
+                            <img src="../<?= htmlspecialchars($produto['qr_code']) ?>" 
+                                 alt="QR Code atual" 
+                                 style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; border-radius: 4px; padding: 5px;">
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="form-group">
+                    <label for="qr_code">QR Code - Ou insira URL/Link</label>
                     <input type="text" id="qr_code" name="qr_code"
                            value="<?= htmlspecialchars($produto['qr_code'] ?? '') ?>"
-                           placeholder="5/4/checkout/650.png ou https://exemplo.com/qr.png">
-                    <small style="color: #666; font-size: 12px;">URL ou caminho relativo da imagem do QR Code</small>
+                           placeholder="https://exemplo.com/qr.png ou 5/4/checkout/650.png">
+                    <small style="color: #666; font-size: 12px;">Se não fizer upload, use este campo para URL ou caminho relativo</small>
                 </div>
 
                 <div class="form-group">
