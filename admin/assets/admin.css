@@ -98,6 +98,16 @@ body {
     box-shadow: var(--shadow-lg);
 }
 
+/* Botão primário com gradiente (para formulários) */
+.form-actions .btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+}
+
+.form-actions .btn-primary:hover {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary) 100%);
+}
+
 .btn-success {
     background: var(--success);
     color: white;
