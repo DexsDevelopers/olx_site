@@ -13,8 +13,8 @@ class Auth {
 
     public function login($username, $password) {
         $admin = $this->db->fetchOne(
-            "SELECT * FROM admins WHERE (username = :user OR email = :user) AND active = 1",
-            ['user' => $username]
+            "SELECT * FROM admins WHERE (username = :user1 OR email = :user2) AND active = 1",
+            ['user1' => $username, 'user2' => $username]
         );
 
         if ($admin && password_verify($password, $admin['password'])) {
