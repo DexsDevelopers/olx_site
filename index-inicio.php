@@ -36,31 +36,49 @@ $produtosHTML = renderProdutosCards($listaProdutos);
 
 // Verificar se há produtos para exibir
 if (!empty($listaProdutos)) {
-    // Método simples e direto: substituir a section completa
-    // O template já gera a section completa com o ID correto
+    // Usar o padrão alternativo que é mais preciso (encontrou 8025 caracteres vs 185347)
+    // Este padrão captura apenas a section específica, não tudo desde o comentário
     $pattern = '/<section[^>]*id="produtos-lucas-template"[^>]*>.*?<\/section>/s';
     
-    // Verificar se encontrou a section
-    if (preg_match($pattern, $htmlContent)) {
-        // Substituir
-        $htmlContent = preg_replace($pattern, $produtosHTML, $htmlContent, 1);
-    } else {
-        // Se não encontrou pelo padrão, procurar pelo comentário
-        $commentPattern = '/<!-- =======================================================\s+BLOCO PERSONALIZADO DE PRODUTOS.*?<section[^>]*id="produtos-lucas-template"[^>]*>.*?<\/section>/s';
-        if (preg_match($commentPattern, $htmlContent)) {
-            $htmlContent = preg_replace($commentPattern, $produtosHTML, $htmlContent, 1);
-        } else {
-            // Último recurso: encontrar a posição e inserir
-            $commentPos = strpos($htmlContent, '<!-- =======================================================');
-            if ($commentPos !== false) {
-                $sectionPos = strpos($htmlContent, '<section', $commentPos);
-                if ($sectionPos !== false) {
-                    // Encontrar o fechamento
-                    $closePos = strpos($htmlContent, '</section>', $sectionPos);
-                    if ($closePos !== false) {
-                        $closePos += strlen('</section>');
-                        $htmlContent = substr_replace($htmlContent, $produtosHTML, $sectionPos, $closePos - $sectionPos);
+    // Substituir diretamente
+    $htmlContent = preg_replace($pattern, $produtosHTML, $htmlContent, 1);
+    
+    // Verificar se a substituição funcionou
+    if (strpos($htmlContent, $produtosHTML) === false) {
+        // Se não funcionou, tentar método alternativo mais específico
+        $sectionStart = strpos($htmlContent, '<section');
+        $sectionIdPos = strpos($htmlContent, 'id="produtos-lucas-template"');
+        
+        if ($sectionIdPos !== false) {
+            // Encontrar o início da section (pode estar antes do ID)
+            $sectionTagStart = strrpos(substr($htmlContent, 0, $sectionIdPos), '<section');
+            if ($sectionTagStart !== false) {
+                // Encontrar o fechamento correto
+                $searchPos = $sectionTagStart;
+                $depth = 0;
+                $sectionEnd = false;
+                
+                while ($searchPos < strlen($htmlContent)) {
+                    $nextOpen = strpos($htmlContent, '<section', $searchPos + 1);
+                    $nextClose = strpos($htmlContent, '</section>', $searchPos);
+                    
+                    if ($nextClose === false) break;
+                    
+                    if ($nextOpen !== false && $nextOpen < $nextClose) {
+                        $depth++;
+                        $searchPos = $nextOpen;
+                    } else {
+                        if ($depth === 0) {
+                            $sectionEnd = $nextClose + strlen('</section>');
+                            break;
+                        }
+                        $depth--;
+                        $searchPos = $nextClose;
                     }
+                }
+                
+                if ($sectionEnd !== false) {
+                    $htmlContent = substr_replace($htmlContent, $produtosHTML, $sectionTagStart, $sectionEnd - $sectionTagStart);
                 }
             }
         }
