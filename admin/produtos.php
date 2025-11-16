@@ -145,72 +145,12 @@ if ($action === 'list') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $action === 'create' ? 'Novo Produto' : 'Editar Produto' ?> | Painel Admin</title>
     <link rel="stylesheet" href="assets/admin.css">
-        .form-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .form-checkbox input[type="checkbox"] {
-            width: auto;
-        }
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-        .form-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 30px;
-        }
-        .alert {
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-        }
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
 </head>
 <body>
     <div class="header">
         <div class="header-content">
             <h1><?= $action === 'create' ? '➕ Novo Produto' : '✏️ Editar Produto' ?></h1>
-            <a href="index.php" class="btn" style="background: white; color: #667eea; text-decoration: none;">← Voltar</a>
+            <a href="index.php" class="btn btn-primary">← Voltar</a>
         </div>
     </div>
 
