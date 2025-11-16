@@ -20,7 +20,43 @@ $produtosAtivos = count(array_filter($listaProdutos, fn($p) => $p['ativo'] == 1)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Admin | <?= SITE_NAME ?></title>
-    <link rel="stylesheet" href="assets/admin.css">
+    <link rel="stylesheet" href="assets/admin.css?v=<?= time() ?>">
+    <style>
+        /* Forçar tema dark - garantir que todos os elementos estejam escuros */
+        html {
+            background: #0f172a !important;
+        }
+        body {
+            background: #0f172a !important;
+            color: #e2e8f0 !important;
+        }
+        .container {
+            background: transparent !important;
+        }
+        .stat-card {
+            background: #1e293b !important;
+            border: 1px solid #334155 !important;
+        }
+        .table-container {
+            background: #1e293b !important;
+            border: 1px solid #334155 !important;
+        }
+        .table-header {
+            background: #1e293b !important;
+        }
+        thead {
+            background: #334155 !important;
+        }
+        th, td {
+            color: #e2e8f0 !important;
+        }
+        tbody tr {
+            background: transparent !important;
+        }
+        tbody tr:hover {
+            background: #334155 !important;
+        }
+    </style>
 </head>
 <body>
     <div class="header">
