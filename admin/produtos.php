@@ -58,13 +58,20 @@ function processarUploadQRCode($produtoId = null) {
     return null;
 }
 
+// Buscar produto se estiver editando (antes de processar POST)
+$produtoAtual = null;
+if ($action === 'edit' && $id) {
+    $produtoAtual = $produtos->buscar($id);
+}
+
 // Processar ações
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'create' || $action === 'edit') {
         // Processar upload de QR Code
         $qrCodePath = null;
         if (isset($_FILES['qr_code_file']) && $_FILES['qr_code_file']['error'] === UPLOAD_ERR_OK) {
-            $qrCodePath = processarUploadQRCode($id);
+            $produtoIdParaUpload = ($action === 'edit' && $id) ? $id : null;
+            $qrCodePath = processarUploadQRCode($produtoIdParaUpload);
         }
         
         // Se não houve upload, usar URL se fornecida
@@ -73,8 +80,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         // Se editando e não mudou nada, manter o valor atual
-        if ($action === 'edit' && !$qrCodePath && !empty($produto['qr_code'])) {
-            $qrCodePath = $produto['qr_code'];
+        if ($action === 'edit' && !$qrCodePath && $produtoAtual && !empty($produtoAtual['qr_code'])) {
+            $qrCodePath = $produtoAtual['qr_code'];
         }
         
         $dados = [
@@ -115,8 +122,9 @@ if ($action === 'delete' && $id) {
     $action = 'list';
 }
 
-$produto = null;
-if ($action === 'edit' && $id) {
+// Usar produto atual se já foi buscado, senão buscar novamente
+$produto = $produtoAtual;
+if (!$produto && $action === 'edit' && $id) {
     $produto = $produtos->buscar($id);
     if (!$produto) {
         $action = 'list';
