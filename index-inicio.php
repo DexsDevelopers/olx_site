@@ -140,9 +140,6 @@ HTML;
 // Se houver marcador específico no HTML, substitui por nossos produtos (posição fixa no layout)
 if (strpos($htmlContent, '<!-- PRODUTOS_BIANCA -->') !== false) {
     $htmlContent = str_replace('<!-- PRODUTOS_BIANCA -->', $produtosHTML . $ctaMobile . $atalhoAdmin, $htmlContent);
-} else {
-    // Fallback: insere antes do </body> se o marcador não existir
-    $htmlContent = preg_replace('/<\/body>/i', $produtosHTML . $ctaMobile . $atalhoAdmin . '</body>', $htmlContent, 1);
 }
 
 // Output final
