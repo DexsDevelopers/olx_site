@@ -52,23 +52,23 @@ function renderProdutosCards($produtos) {
       #produtos-lucas-template .produtos-carousel-wrapper {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
       }
       #produtos-lucas-template .produtos-carousel-viewport {
         flex: 1;
-        overflow: hidden;
-      }
-      #produtos-lucas-template .produtos-carousel-track {
-        display: flex;
-        gap: 12px;
         overflow-x: auto;
         scroll-snap-type: x mandatory;
         padding: 8px 4px 12px;
         scrollbar-width: none;
         -ms-overflow-style: none;
       }
-      #produtos-lucas-template .produtos-carousel-track::-webkit-scrollbar {
+      #produtos-lucas-template .produtos-carousel-viewport::-webkit-scrollbar {
         display: none;
+      }
+      #produtos-lucas-template .produtos-carousel-track {
+        display: flex;
+        gap: 12px;
+        min-width: fit-content;
       }
       #produtos-lucas-template .produtos-carousel-btn {
         width: 34px;
@@ -91,7 +91,7 @@ function renderProdutosCards($produtos) {
       }
       @media (max-width: 768px) {
         #produtos-lucas-template .produtos-carousel-wrapper {
-          gap: 6px;
+          gap: 8px;
         }
         #produtos-lucas-template .produtos-carousel-btn {
           width: 30px;
@@ -104,21 +104,23 @@ function renderProdutosCards($produtos) {
       (function () {
         var section = document.getElementById('produtos-lucas-template');
         if (!section) return;
+        var viewport = section.querySelector('.produtos-carousel-viewport');
         var track = section.querySelector('.produtos-carousel-track');
-        if (!track) return;
+        var scrollContainer = viewport || track;
+        if (!scrollContainer) return;
         var prevBtn = section.querySelector('.produtos-carousel-btn--prev');
         var nextBtn = section.querySelector('.produtos-carousel-btn--next');
 
         function getScrollAmount() {
-          var card = track.querySelector('article');
+          var card = section.querySelector('.produtos-carousel-track article');
           if (!card) return 260;
-          var styles = window.getComputedStyle(track);
+          var styles = window.getComputedStyle(scrollContainer);
           var gap = parseInt(styles.columnGap || styles.gap || '12', 10) || 12;
           return card.getBoundingClientRect().width + gap;
         }
 
         function scroll(delta) {
-          track.scrollBy({ left: delta, behavior: 'smooth' });
+          scrollContainer.scrollBy({ left: delta, behavior: 'smooth' });
         }
 
         if (prevBtn) {
