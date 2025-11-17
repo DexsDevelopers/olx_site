@@ -131,6 +131,9 @@ if (!$htmlFile || !file_exists(__DIR__ . '/' . $htmlFile)) {
 // Carregar o HTML
 $htmlContent = file_get_contents(__DIR__ . '/' . $htmlFile);
 
+// Log para debug (verificar se está sendo processado)
+error_log("Checkout processado - Produto ID: {$produto['id']}, Arquivo: $htmlFile, QR Code: " . (!empty($produto['qr_code']) ? 'SIM' : 'NÃO') . ", PIX: " . (!empty($produto['chave_pix']) ? 'SIM' : 'NÃO'));
+
 // Formatar preço
 $precoFormatado = 'R$ ' . number_format($produto['preco'], 2, ',', '.');
 $precoSemFormatacao = number_format($produto['preco'], 2, ',', '.');
@@ -304,6 +307,9 @@ if (!empty($produto['link_cartao'])) {
         $htmlContent
     );
 }
+
+// Adicionar parâmetro de versão para evitar cache
+$htmlContent = str_replace('</head>', '<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"></head>', $htmlContent);
 
 // Output
 echo $htmlContent;
