@@ -53,8 +53,28 @@ if (!empty($produto['qr_code'])) {
     echo "<p>Substituição realizada: " . ($substituido ? '<span style="color:green;">✓ SIM</span>' : '<span style="color:red;">✗ NÃO</span>') . "</p>";
     
     if ($substituido) {
-        preg_match('/<img[^>]*id=["\']pix-qr["\'][^>]*src=["\']([^"\']*)["\']/i', $htmlTeste, $matches);
-        echo "<p><strong>Src após substituição:</strong> " . htmlspecialchars($matches[1] ?? 'NÃO ENCONTRADO') . "</p>";
+        // Tentar múltiplos padrões para encontrar o src
+        $patterns = [
+            '/<img[^>]*id=["\']pix-qr["\'][^>]*src=["\']([^"\']*)["\']/i',
+            '/<img[^>]*src=["\']([^"\']*)["\'][^>]*id=["\']pix-qr["\']/i',
+            '/id=["\']pix-qr["\'][^>]*src=["\']([^"\']*)["\']/i',
+        ];
+        
+        $srcEncontrado = false;
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $htmlTeste, $matches)) {
+                echo "<p><strong>Src após substituição:</strong> <code>" . htmlspecialchars($matches[1]) . "</code></p>";
+                $srcEncontrado = true;
+                break;
+            }
+        }
+        
+        if (!$srcEncontrado) {
+            // Mostrar o HTML completo da tag img para debug
+            preg_match('/<img[^>]*id=["\']pix-qr["\'][^>]*>/i', $htmlTeste, $imgMatch);
+            echo "<p><strong>HTML completo da tag img:</strong></p>";
+            echo "<pre style='background: #f0f0f0; padding: 1rem; border: 1px solid #ccc;'>" . htmlspecialchars($imgMatch[0] ?? 'NÃO ENCONTRADO') . "</pre>";
+        }
     }
 }
 
