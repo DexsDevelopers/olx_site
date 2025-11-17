@@ -44,15 +44,49 @@ if (!$linkPagina) {
 }
 
 // Buscar produto pelo link_pagina
+// Priorizar produtos que têm QR Code e PIX definidos
 if ($linkPagina) {
-    $sql = "SELECT * FROM produtos WHERE link_pagina = :link AND ativo = 1 LIMIT 1";
+    // Primeiro, tentar encontrar produto com QR Code e PIX
+    $sql = "SELECT * FROM produtos 
+            WHERE link_pagina = :link 
+            AND ativo = 1 
+            AND qr_code IS NOT NULL 
+            AND qr_code != '' 
+            AND chave_pix IS NOT NULL 
+            AND chave_pix != ''
+            ORDER BY id DESC 
+            LIMIT 1";
     $db = Database::getInstance();
     $produto = $db->fetchOne($sql, ['link' => $linkPagina]);
+    
+    // Se não encontrou, buscar qualquer produto com esse link_pagina
+    if (!$produto) {
+        $sql = "SELECT * FROM produtos 
+                WHERE link_pagina = :link 
+                AND ativo = 1 
+                ORDER BY id DESC 
+                LIMIT 1";
+        $produto = $db->fetchOne($sql, ['link' => $linkPagina]);
+    }
 }
 
 // Se não encontrou, tentar pelo ID
 if (!$produto && isset($_GET['id'])) {
     $produto = $produtos->buscar(intval($_GET['id']));
+}
+
+// Se ainda não encontrou, buscar produto com QR Code e PIX (qualquer um)
+if (!$produto) {
+    $sql = "SELECT * FROM produtos 
+            WHERE ativo = 1 
+            AND qr_code IS NOT NULL 
+            AND qr_code != '' 
+            AND chave_pix IS NOT NULL 
+            AND chave_pix != ''
+            ORDER BY id DESC 
+            LIMIT 1";
+    $db = Database::getInstance();
+    $produto = $db->fetchOne($sql);
 }
 
 // Se ainda não encontrou, buscar o primeiro produto ativo
@@ -133,9 +167,10 @@ $htmlContent = file_get_contents(__DIR__ . '/' . $htmlFile);
 
 // Log para debug (verificar se está sendo processado)
 error_log("=== CHECKOUT DEBUG ===");
-error_log("Produto ID: {$produto['id']}");
+error_log("Link Página buscado: " . ($linkPagina ?? 'NÃO DEFINIDO'));
+error_log("Produto encontrado - ID: {$produto['id']}");
 error_log("Produto Título: {$produto['titulo']}");
-error_log("Link Página: {$produto['link_pagina']}");
+error_log("Link Página do produto: {$produto['link_pagina']}");
 error_log("Preço: R$ " . number_format($produto['preco'], 2, ',', '.'));
 error_log("Arquivo HTML: $htmlFile");
 error_log("QR Code: " . (!empty($produto['qr_code']) ? $produto['qr_code'] : 'NÃO DEFINIDO'));
