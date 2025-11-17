@@ -209,14 +209,18 @@ if (!empty($produto['qr_code'])) {
     
     // Se for caminho relativo, ajustar para funcionar no checkout
     if (!preg_match('/^https?:\/\//', $qrCodePath)) {
-        // Se o arquivo está em 5/4/checkout/, remover o prefixo para caminho relativo
+        // Se o arquivo está em 5/4/checkout/, manter o caminho relativo ao diretório checkout
         if (strpos($qrCodePath, '5/4/checkout/') === 0) {
+            // Remover apenas o prefixo 5/4/checkout/ para que fique relativo ao diretório do checkout
             $qrCodePath = str_replace('5/4/checkout/', '', $qrCodePath);
         } elseif (strpos($qrCodePath, 'checkout/') === 0) {
             $qrCodePath = str_replace('checkout/', '', $qrCodePath);
         }
         // Se começa com /, remover
         $qrCodePath = ltrim($qrCodePath, '/');
+        
+        // Se o caminho não começa com http e não está vazio, garantir que seja relativo
+        // O arquivo HTML do checkout está em 5/4/checkout/, então caminhos relativos funcionam
     }
     
     error_log("QR Code processado: " . $qrCodePath);
