@@ -4738,11 +4738,81 @@
     (function () {
       var container = document.querySelector('nav.HeroCarousel_home-hero-carousel__mxn2h .olx-core-carousel__container');
       var viewport = document.querySelector('nav.HeroCarousel_home-hero-carousel__mxn2h .olx-core-carousel__viewport');
+      var heroNav = document.querySelector('nav.HeroCarousel_home-hero-carousel__mxn2h');
       if (!container) return;
       var items = container.querySelectorAll('.olx-core-carousel__item');
       if (!items.length) return;
       if (!viewport) viewport = container;
       viewport.style.cursor = 'grab';
+      if (heroNav) {
+        heroNav.style.position = 'relative';
+      }
+
+      if (!document.getElementById('hero-carousel-static-style')) {
+        var styleTag = document.createElement('style');
+        styleTag.id = 'hero-carousel-static-style';
+        styleTag.textContent = `
+          .hero-carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0, 0, 0, 0.55);
+            color: #fff;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: background 0.2s ease;
+          }
+          .hero-carousel-btn:hover {
+            background: rgba(0, 0, 0, 0.75);
+          }
+          .hero-carousel-btn--prev {
+            left: 12px;
+          }
+          .hero-carousel-btn--next {
+            right: 12px;
+          }
+          @media (max-width: 768px) {
+            .hero-carousel-btn {
+              width: 32px;
+              height: 32px;
+              font-size: 16px;
+            }
+          }
+        `;
+        document.head.appendChild(styleTag);
+      }
+
+      function createButton(className, label) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = className;
+        btn.setAttribute('aria-label', label === '‹' ? 'Banner anterior' : 'Próximo banner');
+        btn.textContent = label;
+        return btn;
+      }
+
+      var prevBtn = document.getElementById('hero-carousel-btn-prev');
+      var nextBtn = document.getElementById('hero-carousel-btn-next');
+
+      if (!prevBtn) {
+        prevBtn = createButton('hero-carousel-btn hero-carousel-btn--prev', '‹');
+        prevBtn.id = 'hero-carousel-btn-prev';
+        heroNav && heroNav.appendChild(prevBtn);
+      }
+
+      if (!nextBtn) {
+        nextBtn = createButton('hero-carousel-btn hero-carousel-btn--next', '›');
+        nextBtn.id = 'hero-carousel-btn-next';
+        heroNav && heroNav.appendChild(nextBtn);
+      }
 
       var index = 0;
       var autoInterval = null;
@@ -4819,6 +4889,19 @@
       viewport.addEventListener('touchstart', pointerDown, { passive: true });
       viewport.addEventListener('touchmove', pointerMove, { passive: true });
       viewport.addEventListener('touchend', pointerUp);
+
+      if (prevBtn && nextBtn) {
+        prevBtn.addEventListener('click', function () {
+          stopAutoSlide();
+          show(index - 1);
+          startAutoSlide();
+        });
+        nextBtn.addEventListener('click', function () {
+          stopAutoSlide();
+          show(index + 1);
+          startAutoSlide();
+        });
+      }
 
       startAutoSlide();
     })();
