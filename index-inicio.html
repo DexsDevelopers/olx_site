@@ -2372,58 +2372,52 @@
             <p>Seleção fixa de ofertas para inspirar seus clientes.</p>
           </header>
           <div class="HighlightsBianca__cards">
-            <article style="--card-color:#602ACB">
-              <div class="HighlightsBianca__card-figure">
+            <article class="HighlightsBianca__card" style="--card-color:#602ACB">
+              <div class="HighlightsBianca__image">
                 <img src="assets/img/static-cards/app.jpg" alt="Aplicativo OLX" loading="lazy">
               </div>
-              <div class="HighlightsBianca__card-text">
-                <h3>Tudo até R$100</h3>
-                <p>Itens para desapegar rápido, sem pesar no bolso.</p>
+              <div class="HighlightsBianca__label">
+                <span>Tudo até R$100</span>
               </div>
             </article>
-            <article style="--card-color:#FF7A00">
-              <div class="HighlightsBianca__card-figure">
+            <article class="HighlightsBianca__card" style="--card-color:#FF7A00">
+              <div class="HighlightsBianca__image">
                 <img src="assets/img/static-cards/iphone.jpg" alt="iPhone lilás" loading="lazy">
               </div>
-              <div class="HighlightsBianca__card-text">
-                <h3>iPhones no precinho</h3>
-                <p>Modelos revisados, prontos para uso imediato.</p>
+              <div class="HighlightsBianca__label">
+                <span>iPhones no precinho</span>
               </div>
             </article>
-            <article style="--card-color:#8B5CF6">
-              <div class="HighlightsBianca__card-figure">
+            <article class="HighlightsBianca__card" style="--card-color:#8B5CF6">
+              <div class="HighlightsBianca__image">
                 <img src="assets/img/static-cards/tv.jpg" alt="Televisor" loading="lazy">
               </div>
-              <div class="HighlightsBianca__card-text">
-                <h3>TVs até R$2.000</h3>
-                <p>O entretenimento perfeito para qualquer sala.</p>
+              <div class="HighlightsBianca__label">
+                <span>Tvs até R$2.000</span>
               </div>
             </article>
-            <article style="--card-color:#70EC7B">
-              <div class="HighlightsBianca__card-figure">
+            <article class="HighlightsBianca__card" style="--card-color:#70EC7B">
+              <div class="HighlightsBianca__image">
                 <img src="assets/img/static-cards/fridge.jpg" alt="Geladeira branca" loading="lazy">
               </div>
-              <div class="HighlightsBianca__card-text">
-                <h3>Eletros a partir de R$500</h3>
-                <p>Geladeiras, fogões e muito mais com garantia.</p>
+              <div class="HighlightsBianca__label">
+                <span>Eletros a partir de R$500</span>
               </div>
             </article>
-            <article style="--card-color:#7C3AED">
-              <div class="HighlightsBianca__card-figure">
+            <article class="HighlightsBianca__card" style="--card-color:#7C3AED">
+              <div class="HighlightsBianca__image">
                 <img src="assets/img/static-cards/sneaker.jpg" alt="Tênis Nike" loading="lazy">
               </div>
-              <div class="HighlightsBianca__card-text">
-                <h3>Marcas queridinhas</h3>
-                <p>Looks completos com descontos semanais.</p>
+              <div class="HighlightsBianca__label">
+                <span>Marcas queridinhas a partir de R$100</span>
               </div>
             </article>
-            <article style="--card-color:#FF8C1A">
-              <div class="HighlightsBianca__card-figure">
+            <article class="HighlightsBianca__card" style="--card-color:#FF8C1A">
+              <div class="HighlightsBianca__image">
                 <img src="assets/img/static-cards/tires.jpg" alt="Pneus" loading="lazy">
               </div>
-              <div class="HighlightsBianca__card-text">
-                <h3>Autopeças com até 40% OFF</h3>
-                <p>Peças confiáveis para manter seu carro em dia.</p>
+              <div class="HighlightsBianca__label">
+                <span>Autopeças com até 40% OFF.</span>
               </div>
             </article>
           </div>
@@ -4278,40 +4272,42 @@
           grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
           gap: 16px;
         }
-        .HighlightsBianca__cards article {
+        .HighlightsBianca__card {
           background: var(--card-color, #4c1d95);
-          border-radius: 16px;
-          padding: 14px;
-          min-height: 190px;
+          border-radius: 18px;
           display: flex;
           flex-direction: column;
-          justify-content: space-between;
-          color: #fff;
-          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
-        }
-        .HighlightsBianca__card-figure {
-          display: block;
-          height: 150px;
-          border-radius: 12px;
           overflow: hidden;
-          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+          min-height: 220px;
+          box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+          border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .HighlightsBianca__card-figure img {
+        .HighlightsBianca__image {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 12px;
+        }
+        .HighlightsBianca__image img {
           width: 100%;
           height: 100%;
+          max-height: 180px;
           object-fit: cover;
+          border-radius: 14px;
           display: block;
         }
-        .HighlightsBianca__card-text h3 {
-          margin: 0;
-          font-size: 16px;
-          font-weight: 700;
+        .HighlightsBianca__label {
+          background: #2e3444;
+          text-align: center;
+          padding: 14px 10px;
+          border-top: 3px solid rgba(255, 255, 255, 0.08);
         }
-        .HighlightsBianca__card-text p {
-          margin: 4px 0 0;
-          font-size: 13px;
-          color: #f8fafc;
-          opacity: 0.9;
+        .HighlightsBianca__label span {
+          font-size: 14px;
+          font-weight: 600;
+          color: #e4e8ff;
+          text-decoration: underline;
         }
         .BenefitsBianca__content {
           margin-top: 32px;
