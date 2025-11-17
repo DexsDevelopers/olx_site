@@ -279,25 +279,38 @@ if (!empty($produto['qr_code'])) {
         }
         $qrCodePath = ltrim($qrCodePath, '/');
         
-        // Verificar se o arquivo existe
+        // Verificar se o arquivo existe e ajustar caminho
         $qrCodeFullPath = __DIR__ . '/5/4/checkout/' . $qrCodePath;
-        if (!file_exists($qrCodeFullPath)) {
-            error_log("AVISO: Arquivo QR Code não encontrado: $qrCodeFullPath");
+        $arquivoEncontrado = false;
+        
+        if (file_exists($qrCodeFullPath)) {
+            error_log("QR Code encontrado em: $qrCodeFullPath");
+            $arquivoEncontrado = true;
+        } else {
+            error_log("AVISO: Arquivo QR Code não encontrado em: $qrCodeFullPath");
             // Tentar encontrar em outros locais
             $possiblePaths = [
                 __DIR__ . '/' . $qrCodePath,
                 __DIR__ . '/5/4/checkout/' . basename($qrCodePath),
                 __DIR__ . '/5/4/checkout/qr-codes/' . basename($qrCodePath),
+                __DIR__ . '/5/4/checkout/' . $qrCodePath,
             ];
+            
             foreach ($possiblePaths as $path) {
                 if (file_exists($path)) {
-                    $qrCodePath = str_replace(__DIR__ . '/5/4/checkout/', '', $path);
-                    error_log("QR Code encontrado em: $path, usando caminho: $qrCodePath");
+                    // Calcular caminho relativo ao diretório checkout
+                    $relativePath = str_replace(__DIR__ . '/5/4/checkout/', '', $path);
+                    $qrCodePath = ltrim($relativePath, '/');
+                    error_log("QR Code encontrado em: $path, usando caminho relativo: $qrCodePath");
+                    $arquivoEncontrado = true;
                     break;
                 }
             }
-        } else {
-            error_log("QR Code encontrado em: $qrCodeFullPath");
+            
+            if (!$arquivoEncontrado) {
+                error_log("ERRO: Arquivo QR Code não encontrado em nenhum local! Tentando usar caminho original: $qrCodePath");
+                // Mesmo assim, tentar usar o caminho (pode ser URL ou arquivo que será criado)
+            }
         }
     }
     
@@ -307,7 +320,14 @@ if (!empty($produto['qr_code'])) {
     $hasPixQr = preg_match('/<img[^>]*id=["\']pix-qr["\'][^>]*>/i', $htmlContent);
     error_log("HTML contém id='pix-qr': " . ($hasPixQr ? 'SIM' : 'NÃO'));
     
+    // Capturar o HTML original da tag img para debug
+    if ($hasPixQr) {
+        preg_match('/<img[^>]*id=["\']pix-qr["\'][^>]*>/i', $htmlContent, $imgOriginal);
+        error_log("HTML original da tag img: " . ($imgOriginal[0] ?? 'NÃO ENCONTRADO'));
+    }
+    
     // Substituição mais agressiva - substituir TUDO que tenha id="pix-qr"
+    $htmlAntes = $htmlContent;
     $htmlContent = preg_replace(
         '/<img[^>]*id=["\']pix-qr["\'][^>]*>/i',
         '<img src="' . htmlspecialchars($qrCodePath) . '" alt="QR Code Pix" id="pix-qr" width="220">',
@@ -318,23 +338,43 @@ if (!empty($produto['qr_code'])) {
     $afterReplace = preg_match('/<img[^>]*id=["\']pix-qr["\'][^>]*src=["\']' . preg_quote(htmlspecialchars($qrCodePath), '/') . '["\']/i', $htmlContent);
     error_log("Substituição QR Code bem-sucedida: " . ($afterReplace ? 'SIM' : 'NÃO'));
     
-    // Se não funcionou, tentar substituição mais agressiva
+    // Se não funcionou, tentar múltiplas estratégias
     if (!$afterReplace) {
-        // Substituir qualquer img dentro de div.qr-code
+        // Estratégia 1: Substituir qualquer img dentro de div.qr-code
         $htmlContent = preg_replace(
             '/(<div[^>]*class=["\'][^"\']*qr-code[^"\']*["\'][^>]*>.*?<img[^>]*src=["\'])[^"\']*(["\'][^>]*>)/is',
             '$1' . htmlspecialchars($qrCodePath) . '$2',
             $htmlContent
         );
-        error_log("Tentativa de substituição QR Code via div.qr-code");
+        error_log("Tentativa 1: Substituição QR Code via div.qr-code");
+        
+        // Estratégia 2: Substituir src diretamente na tag com id pix-qr
+        $htmlContent = preg_replace(
+            '/(<img[^>]*id=["\']pix-qr["\'][^>]*src=["\'])[^"\']*(["\'])/i',
+            '$1' . htmlspecialchars($qrCodePath) . '$2',
+            $htmlContent
+        );
+        error_log("Tentativa 2: Substituição direta do src");
+        
+        // Estratégia 3: Substituir qualquer img que tenha src com extensão de imagem
+        $htmlContent = preg_replace(
+            '/(<img[^>]*id=["\']pix-qr["\'][^>]*src=["\'])[^"\']*\.(png|jpeg|jpg|webp)(["\'])/i',
+            '$1' . htmlspecialchars($qrCodePath) . '$3',
+            $htmlContent
+        );
+        error_log("Tentativa 3: Substituição por extensão de arquivo");
     }
     
-    // Backup: substituir qualquer img com src="650.png" ou similar dentro de .qr-code
-    $htmlContent = preg_replace(
-        '/(<div[^>]*class=["\'][^"\']*qr-code[^"\']*["\'][^>]*>.*?<img[^>]*src=["\'])[^"\']*(["\'][^>]*id=["\']pix-qr["\'][^>]*>)/is',
-        '$1' . htmlspecialchars($qrCodePath) . '$2',
-        $htmlContent
-    );
+    // Verificar novamente após todas as tentativas
+    $afterReplace = preg_match('/<img[^>]*id=["\']pix-qr["\'][^>]*src=["\']' . preg_quote(htmlspecialchars($qrCodePath), '/') . '["\']/i', $htmlContent);
+    if ($afterReplace) {
+        error_log("QR Code substituído com sucesso após tentativas!");
+        // Capturar o HTML final para debug
+        preg_match('/<img[^>]*id=["\']pix-qr["\'][^>]*>/i', $htmlContent, $imgFinal);
+        error_log("HTML final da tag img: " . ($imgFinal[0] ?? 'NÃO ENCONTRADO'));
+    } else {
+        error_log("ERRO: QR Code NÃO foi substituído após todas as tentativas!");
+    }
 }
 
 // 8. Substituir Chave PIX se fornecida
