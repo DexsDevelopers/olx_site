@@ -34,6 +34,13 @@ $htmlContent = file_get_contents($htmlFile);
 // Gerar a seção de produtos dinâmica
 $produtosHTML = renderProdutosCards($listaProdutos);
 
+// REMOVER o script original que tenta clonar (causa conflito)
+$htmlContent = preg_replace(
+    '/<script>\s*\/\/\s*Insere os produtos logo abaixo do carrossel.*?<\/script>/s',
+    '<!-- Script original removido para evitar conflito -->',
+    $htmlContent
+);
+
 // Verificar se há produtos para exibir
 if (!empty($listaProdutos)) {
     // Usar o padrão alternativo que é mais preciso (encontrou 8025 caracteres vs 185347)
@@ -85,22 +92,106 @@ if (!empty($listaProdutos)) {
     }
 }
 
-// Adicionar scripts antes do fechamento do body
-$scripts = '
+// Script que executa ANTES de tudo (no head)
+$scriptHead = '
 <script>
-// DESABILITAR o script original que tenta clonar (pode estar causando conflito)
+// PROTEÇÃO ULTRA AGRESSIVA - Executa ANTES de qualquer outro script
 (function() {
-    // Sobrescrever o event listener original se existir
-    var originalAddEventListener = document.addEventListener;
-    document.addEventListener = function(type, listener, options) {
-        if (type === "DOMContentLoaded" && listener.toString().indexOf("produtos-lucas-template") !== -1 && listener.toString().indexOf("cloneNode") !== -1) {
-            // Não executar o listener original que clona
-            return;
+    "use strict";
+    
+    // Proteger elemento ANTES do DOM estar pronto
+    var protectedElement = null;
+    var protectionActive = false;
+    
+    function protegerElemento() {
+        if (!protectionActive) {
+            protectionActive = true;
+            
+            // Interceptar removeChild
+            var originalRemoveChild = Node.prototype.removeChild;
+            Node.prototype.removeChild = function(child) {
+                if (child && child.id === "produtos-lucas-template") {
+                    console.warn("Tentativa de remover produtos-lucas-template bloqueada!");
+                    return child;
+                }
+                return originalRemoveChild.call(this, child);
+            };
+            
+            // Interceptar remove
+            if (Element.prototype.remove) {
+                var originalRemove = Element.prototype.remove;
+                Element.prototype.remove = function() {
+                    if (this.id === "produtos-lucas-template") {
+                        console.warn("Tentativa de remover produtos-lucas-template bloqueada!");
+                        return;
+                    }
+                    return originalRemove.call(this);
+                };
+            }
+            
+            // Interceptar parentNode.removeChild
+            var originalParentRemoveChild = function() {
+                var proto = Node.prototype;
+                if (proto.removeChild) {
+                    var orig = proto.removeChild;
+                    proto.removeChild = function(child) {
+                        if (child && child.id === "produtos-lucas-template") {
+                            return child;
+                        }
+                        return orig.call(this, child);
+                    };
+                }
+            };
+            originalParentRemoveChild();
         }
-        return originalAddEventListener.call(this, type, listener, options);
-    };
+    }
+    
+    // Executar proteção imediatamente
+    protegerElemento();
+    
+    // Executar quando possível
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", protegerElemento);
+    } else {
+        protegerElemento();
+    }
+    
+    // Função para forçar exibição
+    function forcarExibicao() {
+        var el = document.getElementById("produtos-lucas-template");
+        if (el) {
+            protectedElement = el;
+            
+            // Forçar com cssText (sobrescreve tudo)
+            el.style.cssText = "display: block !important; visibility: visible !important; opacity: 1 !important; height: auto !important; overflow: visible !important; position: relative !important; z-index: 99999 !important; max-width: 1200px; margin: 24px auto 32px; background: #111827; border-radius: 12px; padding: 16px; width: 100%; box-sizing: border-box;";
+            
+            // Proteger contra remoção
+            Object.defineProperty(el, "remove", {
+                value: function() { return; },
+                writable: false,
+                configurable: false
+            });
+        }
+    }
+    
+    // Executar várias vezes
+    forcarExibicao();
+    setTimeout(forcarExibicao, 0);
+    setTimeout(forcarExibicao, 10);
+    setTimeout(forcarExibicao, 50);
+    setTimeout(forcarExibicao, 100);
+    
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", forcarExibicao);
+    }
+    
+    window.addEventListener("load", forcarExibicao);
 })();
 </script>
+';
+
+// Adicionar scripts antes do fechamento do body
+$scripts = '
 
 <script>
 // Garantir que os produtos apareçam no mobile - VERSÃO ROBUSTA
@@ -334,6 +425,22 @@ $scripts = '
             clearInterval(interval);
         }
     }, 1000);
+    
+    // Observer ULTRA AGRESSIVO - verifica a cada 100ms
+    var observerInterval = setInterval(function() {
+        var el = document.getElementById("produtos-lucas-template");
+        if (el) {
+            var computed = window.getComputedStyle(el);
+            if (computed.display === "none" || computed.visibility === "hidden" || computed.opacity === "0") {
+                forcarExibicao();
+            }
+        }
+    }, 100);
+    
+    // Parar após 30 segundos (economia de recursos)
+    setTimeout(function() {
+        clearInterval(observerInterval);
+    }, 30000);
 })();
 </script>
 
@@ -460,13 +567,13 @@ section#produtos-lucas-template,
 </style>
 ';
 
-// Inserir meta tags, CSS no head e scripts antes do fechamento do </body>
-// Primeiro, adicionar meta tags no head (após charset/viewport se existir)
+// Inserir meta tags, CSS e script de proteção no head, e scripts antes do fechamento do </body>
+// Primeiro, adicionar meta tags e script de proteção no head (após charset/viewport se existir)
 if (preg_match('/<head[^>]*>/i', $htmlContent)) {
-    $htmlContent = preg_replace('/(<head[^>]*>)/i', '$1' . $metaCache, $htmlContent, 1);
+    $htmlContent = preg_replace('/(<head[^>]*>)/i', '$1' . $metaCache . $scriptHead, $htmlContent, 1);
 } else {
     // Se não tiver head, criar um
-    $htmlContent = preg_replace('/<html[^>]*>/i', '<html>' . "\n<head>" . $metaCache . '</head>', $htmlContent, 1);
+    $htmlContent = preg_replace('/<html[^>]*>/i', '<html>' . "\n<head>" . $metaCache . $scriptHead . '</head>', $htmlContent, 1);
 }
 
 $htmlContent = preg_replace('/<\/head>/i', $cssFix . '</head>', $htmlContent, 1);
