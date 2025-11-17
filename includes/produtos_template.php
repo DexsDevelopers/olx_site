@@ -10,39 +10,115 @@ function renderProdutosCards($produtos) {
     <section id="produtos-lucas-template" class="Container_home-container__aomo5" style="max-width: 1200px; margin: 24px auto 32px; display: block !important; visibility: visible !important; opacity: 1 !important; background:#111827; border-radius:12px; padding:16px 16px 20px; width: 100%; box-sizing: border-box; position: relative; z-index: 9999;">
       <div class="Container_home-container__content__4lhbl">
         <header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 16px;">
-          <div></div>
+          <h2 style="margin:0; font-size:18px; color:#f3f4f6; font-weight:700;">Produtos da Bianca Moraes</h2>
           <span style="font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid #4b5563; color: #e5e7eb; background:#111827;">
-            Produtos da Bianca Moraes
+            Estoque selecionado e atualizado
           </span>
         </header>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; width: 100%;">
-        <?php foreach ($produtos as $produto): ?>
-          <?php if ($produto['ativo'] == 1): ?>
-          <article style="background: #020617; border-radius: 10px; overflow: hidden; border: 1px solid #374151; display: flex; flex-direction: column; box-shadow: 0 6px 18px rgba(0,0,0,0.35); width: 100%; min-width: 0;">
-            <a href="produto.php?p=<?= htmlspecialchars(urlencode($produto['link_pagina'] ?: 'index.html')) ?>" style="text-decoration:none; color:inherit; display: block; width: 100%;">
-              <div style="height: 150px; min-height: 120px; background: #020617; display: flex; align-items: center; justify-content: center; overflow:hidden; width: 100%;">
-                <img src="<?= htmlspecialchars($produto['imagem_principal']) ?>" alt="<?= htmlspecialchars($produto['titulo']) ?>" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-              </div>
-              <div style="padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; width: 100%; box-sizing: border-box;">
-                <p style="font-size: 14px; font-weight: 600; color:#ffffff !important; margin:0 0 6px; line-height: 1.3; word-wrap: break-word; overflow-wrap: break-word;"><?= htmlspecialchars($produto['titulo']) ?></p>
-                <?php if ($produto['garantia_olx'] == 1): ?>
-                <div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px;">
-                  <span style="display:inline-block; background-color:#f4edfc; color:#9c59d1; font-size:11px; font-weight:600; padding:2px 6px; border-radius:4px;">
-                    Garantia da OLX
-                  </span>
+        <div class="produtos-carousel-wrapper" style="position:relative;">
+          <button type="button" class="produtos-carousel-btn produtos-carousel-btn--prev" aria-label="Ver produtos anteriores">‹</button>
+          <button type="button" class="produtos-carousel-btn produtos-carousel-btn--next" aria-label="Ver próximos produtos">›</button>
+
+          <div class="produtos-carousel-track" style="display:flex; gap:12px; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:8px; scrollbar-width:none; -ms-overflow-style:none;">
+          <?php foreach ($produtos as $produto): ?>
+            <?php if ($produto['ativo'] == 1): ?>
+            <article style="flex:0 0 240px; max-width:240px; background: #020617; border-radius: 12px; overflow: hidden; border: 1px solid #1f2937; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.40); scroll-snap-align:start;">
+              <a href="produto.php?p=<?= htmlspecialchars(urlencode($produto['link_pagina'] ?: 'index.html')) ?>" style="text-decoration:none; color:inherit; display: flex; flex-direction: column; height:100%;">
+                <div style="height: 150px; min-height: 120px; background: #020617; display: flex; align-items: center; justify-content: center; overflow:hidden;">
+                  <img src="<?= htmlspecialchars($produto['imagem_principal']) ?>" alt="<?= htmlspecialchars($produto['titulo']) ?>" style="width: 100%; height: 100%; object-fit: cover; display: block;">
                 </div>
-                <?php endif; ?>
-                <p style="font-weight:bold; font-size:18px; margin:0 0 4px; color:#ffffff !important; line-height: 1.2;"><?= $produtosObj->formatarPreco($produto['preco']) ?></p>
-                <p style="font-size: 12px; color: #9ca3af !important; margin:0; line-height: 1.3;"><?= htmlspecialchars($produto['localizacao']) ?> • <?= $produtosObj->formatarData($produto['data_publicacao'], $produto['hora_publicacao']) ?></p>
-              </div>
-            </a>
-          </article>
-          <?php endif; ?>
-        <?php endforeach; ?>
+                <div style="padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 6px; flex:1;">
+                  <p style="font-size: 15px; font-weight: 600; color:#ffffff !important; margin:0; line-height: 1.35; word-wrap: break-word;"><?= htmlspecialchars($produto['titulo']) ?></p>
+                  <?php if ($produto['garantia_olx'] == 1): ?>
+                  <span style="display:inline-flex; align-items:center; gap:4px; background-color:rgba(156,89,209,0.15); color:#c084fc; font-size:11px; font-weight:600; padding:3px 7px; border-radius:999px; width:max-content;">
+                    <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1l6 3v4c0 3.07-2.13 5.64-6 7-3.87-1.36-6-3.93-6-7V4l6-3z"/></svg>
+                    Garantia OLX
+                  </span>
+                  <?php endif; ?>
+                  <p style="font-weight:bold; font-size:19px; margin:0; color:#ffffff !important;"><?= $produtosObj->formatarPreco($produto['preco']) ?></p>
+                  <p style="font-size: 12px; color: #9ca3af !important; margin-top:auto; line-height: 1.35;"><?= htmlspecialchars($produto['localizacao']) ?> • <?= $produtosObj->formatarData($produto['data_publicacao'], $produto['hora_publicacao']) ?></p>
+                </div>
+              </a>
+            </article>
+            <?php endif; ?>
+          <?php endforeach; ?>
+          </div>
         </div>
       </div>
     </section>
+    <style id="produtos-carousel-style">
+      #produtos-lucas-template .produtos-carousel-track::-webkit-scrollbar {
+        display: none;
+      }
+      #produtos-lucas-template .produtos-carousel-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(8, 15, 40, 0.65);
+        color: #f9fafb;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 5;
+        transition: background 0.2s ease;
+      }
+      #produtos-lucas-template .produtos-carousel-btn:hover {
+        background: rgba(8, 15, 40, 0.9);
+      }
+      #produtos-lucas-template .produtos-carousel-btn--prev {
+        left: 4px;
+      }
+      #produtos-lucas-template .produtos-carousel-btn--next {
+        right: 4px;
+      }
+      @media (max-width: 768px) {
+        #produtos-lucas-template .produtos-carousel-btn {
+          width: 30px;
+          height: 30px;
+          font-size: 16px;
+        }
+      }
+    </style>
+    <script>
+      (function () {
+        var section = document.getElementById('produtos-lucas-template');
+        if (!section) return;
+        var track = section.querySelector('.produtos-carousel-track');
+        if (!track) return;
+        var prevBtn = section.querySelector('.produtos-carousel-btn--prev');
+        var nextBtn = section.querySelector('.produtos-carousel-btn--next');
+
+        function getScrollAmount() {
+          var card = track.querySelector('article');
+          if (!card) return 260;
+          var styles = window.getComputedStyle(track);
+          var gap = parseInt(styles.columnGap || styles.gap || '12', 10) || 12;
+          return card.getBoundingClientRect().width + gap;
+        }
+
+        function scroll(delta) {
+          track.scrollBy({ left: delta, behavior: 'smooth' });
+        }
+
+        if (prevBtn) {
+          prevBtn.addEventListener('click', function () {
+            scroll(-getScrollAmount());
+          });
+        }
+        if (nextBtn) {
+          nextBtn.addEventListener('click', function () {
+            scroll(getScrollAmount());
+          });
+        }
+      })();
+    </script>
     <?php
     return ob_get_clean();
 }
