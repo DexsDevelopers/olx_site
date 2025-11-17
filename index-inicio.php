@@ -31,19 +31,9 @@ if (!file_exists($htmlFile)) {
 $htmlContent = file_get_contents($htmlFile);
 
 // Gerar a seção de produtos dinâmica usando o template antigo (PHP)
+// Em vez de substituir dentro da árvore React/Next (que pode remover nosso conteúdo no mobile),
+// vamos inserir a seção de produtos ANTES do </body>, fora do controle do React.
 $produtosHTML = renderProdutosCards($listaProdutos);
-
-// Substituir o bloco personalizado de produtos original pelo HTML dinâmico
-// Este padrão é o mesmo que foi usado quando "antes os produtos apareciam"
-$pattern = '/<!-- =======================================================\s+BLOCO PERSONALIZADO DE PRODUTOS.*?<\/section>/s';
-$novoHtml = preg_replace($pattern, $produtosHTML, $htmlContent, 1);
-
-if ($novoHtml === null) {
-    // Em caso de erro na regex, logar e manter HTML original
-    error_log('Erro em preg_replace ao substituir bloco de produtos em index-inicio.php: ' . preg_last_error());
-} else {
-    $htmlContent = $novoHtml;
-}
 
 // Adicionar script simples de atalho para admin (digitar "admin")
 $atalhoAdmin = <<<HTML
@@ -79,8 +69,8 @@ $atalhoAdmin = <<<HTML
 </script>
 HTML;
 
-// Inserir o script de atalho antes do </body>
-$htmlContent = preg_replace('/<\/body>/i', $atalhoAdmin . '</body>', $htmlContent, 1);
+// Inserir a seção de produtos + script de atalho antes do </body>
+$htmlContent = preg_replace('/<\/body>/i', $produtosHTML . $atalhoAdmin . '</body>', $htmlContent, 1);
 
 // Output final
 echo $htmlContent;
