@@ -138,8 +138,9 @@ $ctaMobile = <<<HTML
 HTML;
 
 // Se houver marcador específico no HTML, substitui por nossos produtos (posição fixa no layout)
-if (strpos($htmlContent, '<!-- PRODUTOS_BIANCA -->') !== false) {
-    $htmlContent = str_replace('<!-- PRODUTOS_BIANCA -->', $produtosHTML . $ctaMobile . $atalhoAdmin, $htmlContent);
+$pattern = '/<!--\s*PRODUTOS_BIANCA\s*-->/i';
+if (preg_match($pattern, $htmlContent)) {
+    $htmlContent = preg_replace($pattern, $produtosHTML . $ctaMobile . $atalhoAdmin, $htmlContent, 1);
 }
 
 // Output final
