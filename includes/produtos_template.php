@@ -43,10 +43,6 @@ function renderProdutosCards($produtos) {
             <?php endforeach; ?>
             </div>
           </div>
-          <div class="produtos-carousel-btn-group">
-            <button type="button" class="produtos-carousel-btn produtos-carousel-btn--prev" aria-label="Ver produtos anteriores">‹</button>
-            <button type="button" class="produtos-carousel-btn produtos-carousel-btn--next" aria-label="Ver próximos produtos">›</button>
-          </div>
         </div>
       </div>
     </section>
@@ -83,49 +79,6 @@ function renderProdutosCards($produtos) {
         min-width: max-content;
         width: max-content;
       }
-      #produtos-lucas-template .produtos-carousel-btn-group {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        pointer-events: none;
-        padding: 0 6px;
-        z-index: 5;
-      }
-      #produtos-lucas-template .produtos-carousel-btn {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        border: none;
-        background: rgba(8, 15, 40, 0.65);
-        color: #f9fafb;
-        font-size: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: background 0.2s ease;
-        flex: 0 0 auto;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-        pointer-events: auto;
-      }
-      #produtos-lucas-template .produtos-carousel-btn:hover {
-        background: rgba(8, 15, 40, 0.9);
-      }
-      @media (max-width: 768px) {
-        #produtos-lucas-template .produtos-carousel-btn-group {
-          padding: 0 4px;
-        }
-        #produtos-lucas-template .produtos-carousel-btn {
-          width: 30px;
-          height: 30px;
-          font-size: 16px;
-        }
-      }
     </style>
     <script>
       (function () {
@@ -135,8 +88,6 @@ function renderProdutosCards($produtos) {
         var track = section.querySelector('.produtos-carousel-track');
         var scrollContainer = viewport || track;
         if (!scrollContainer) return;
-        var prevBtn = section.querySelector('.produtos-carousel-btn--prev');
-        var nextBtn = section.querySelector('.produtos-carousel-btn--next');
         var isPointerDown = false;
         var startX = 0;
         var startScroll = 0;
@@ -151,17 +102,6 @@ function renderProdutosCards($produtos) {
 
         function scroll(delta) {
           scrollContainer.scrollBy({ left: delta, behavior: 'smooth' });
-        }
-
-        if (prevBtn) {
-          prevBtn.addEventListener('click', function () {
-            scroll(-getScrollAmount());
-          });
-        }
-        if (nextBtn) {
-          nextBtn.addEventListener('click', function () {
-            scroll(getScrollAmount());
-          });
         }
 
           function pointerDown(e) {
