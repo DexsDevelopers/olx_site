@@ -56,6 +56,8 @@ function renderProdutosCards($produtos) {
       }
       #produtos-lucas-template .produtos-carousel-viewport {
         flex: 1;
+        min-width: 0;
+        width: 100%;
         overflow-x: auto;
         scroll-snap-type: x mandatory;
         padding: 8px 4px 12px;
