@@ -4737,11 +4737,20 @@
     // Carrossel estático simples para os banners principais (sem depender dos scripts da OLX)
     (function () {
       var container = document.querySelector('nav.HeroCarousel_home-hero-carousel__mxn2h .olx-core-carousel__container');
+      var viewport = document.querySelector('nav.HeroCarousel_home-hero-carousel__mxn2h .olx-core-carousel__viewport');
       if (!container) return;
       var items = container.querySelectorAll('.olx-core-carousel__item');
       if (!items.length) return;
+      if (!viewport) viewport = container;
+      viewport.style.cursor = 'grab';
 
       var index = 0;
+      var autoInterval = null;
+      var startX = 0;
+      var deltaX = 0;
+      var dragging = false;
+      var threshold = 50; // px mínimo para considerar swipe
+
       function show(newIndex) {
         if (!items[index]) return;
         items[index].style.display = 'none';
@@ -4755,9 +4764,63 @@
         items[i].style.display = i === 0 ? 'block' : 'none';
       }
 
-      setInterval(function () {
-        show(index + 1);
-      }, 7000);
+      function startAutoSlide() {
+        stopAutoSlide();
+        autoInterval = setInterval(function () {
+          show(index + 1);
+        }, 7000);
+      }
+
+      function stopAutoSlide() {
+        if (autoInterval) {
+          clearInterval(autoInterval);
+          autoInterval = null;
+        }
+      }
+
+      function pointerDown(event) {
+        stopAutoSlide();
+        dragging = true;
+        startX = event.clientX || (event.touches && event.touches[0].clientX) || 0;
+        deltaX = 0;
+        viewport.style.cursor = 'grabbing';
+      }
+
+      function pointerMove(event) {
+        if (!dragging) return;
+        var currentX = event.clientX || (event.touches && event.touches[0].clientX) || 0;
+        deltaX = currentX - startX;
+      }
+
+      function pointerUp() {
+        if (!dragging) return;
+        dragging = false;
+        viewport.style.cursor = 'grab';
+
+        if (Math.abs(deltaX) > threshold) {
+          if (deltaX < 0) {
+            show(index + 1);
+          } else {
+            show(index - 1);
+          }
+        }
+
+        startAutoSlide();
+      }
+
+      viewport.addEventListener('pointerdown', pointerDown);
+      viewport.addEventListener('pointermove', pointerMove);
+      viewport.addEventListener('pointerup', pointerUp);
+      viewport.addEventListener('pointerleave', function () {
+        if (dragging) {
+          pointerUp();
+        }
+      });
+      viewport.addEventListener('touchstart', pointerDown, { passive: true });
+      viewport.addEventListener('touchmove', pointerMove, { passive: true });
+      viewport.addEventListener('touchend', pointerUp);
+
+      startAutoSlide();
     })();
   </script>
   <!-- Foto estática: scripts Web Vitals desativados -->
