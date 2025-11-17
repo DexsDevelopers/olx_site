@@ -2432,33 +2432,66 @@
 
       <section class="BenefitsBianca" data-static-block="produtos-benefits">
         <div class="BenefitsBianca__content">
-          <div class="BenefitsBianca__text">
+          <div class="BenefitsBianca__header">
             <h2>Crie sua conta OLX e aproveite todas as vantagens</h2>
-            <p>Gerencie anúncios, negocie com segurança e receba recomendações personalizadas.</p>
           </div>
-          <div class="BenefitsBianca__grid">
-            <article>
-              <span class="BenefitsBianca__icon">💸</span>
-              <h3>Anuncie grátis</h3>
-              <p>Desapegue de produtos, autos e imóveis sem pagar taxa inicial.</p>
+          <div class="BenefitsBianca__row">
+            <article class="BenefitsBianca__item">
+              <span class="BenefitsBianca__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="presentation">
+                  <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 3c4.418 0 8 2.686 8 6s-3.582 6-8 6-8 2.686-8 6"></path>
+                  <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 3v18"></path>
+                </svg>
+              </span>
+              <div>
+                <h3>Anuncie grátis e desapegue</h3>
+                <p>Produtos, autos e imóveis sem pagar nada.</p>
+              </div>
             </article>
-            <article>
-              <span class="BenefitsBianca__icon">💬</span>
-              <h3>Negocie com confiança</h3>
-              <p>Use o chat OLX para conversar e fechar negócios com segurança.</p>
+            <article class="BenefitsBianca__item">
+              <span class="BenefitsBianca__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="presentation">
+                  <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                    d="M4 5h16v9H7l-3 3V5z"></path>
+                </svg>
+              </span>
+              <div>
+                <h3>Negocie com segurança</h3>
+                <p>Converse no chat OLX e evite golpes.</p>
+              </div>
             </article>
-            <article>
-              <span class="BenefitsBianca__icon">❤️</span>
-              <h3>Favoritos sempre à mão</h3>
-              <p>Salve os anúncios preferidos e receba alertas de queda de preço.</p>
+            <article class="BenefitsBianca__item">
+              <span class="BenefitsBianca__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="presentation">
+                  <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"></path>
+                </svg>
+              </span>
+              <div>
+                <h3>Favorite as ofertas</h3>
+                <p>Salve o que mais curtir e acompanhe.</p>
+              </div>
             </article>
-            <article>
-              <span class="BenefitsBianca__icon">🎯</span>
-              <h3>Recomendações inteligentes</h3>
-              <p>Receba ofertas alinhadas ao seu perfil para comprar mais rápido.</p>
+            <article class="BenefitsBianca__item">
+              <span class="BenefitsBianca__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="presentation">
+                  <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                    d="M4 17l6-6 4 4 6-6"></path>
+                  <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                    d="M20 5h0v6h-6"></path>
+                </svg>
+              </span>
+              <div>
+                <h3>Receba recomendações personalizadas</h3>
+                <p>Ofertas alinhadas com o que você procura.</p>
+              </div>
             </article>
           </div>
-          <a class="BenefitsBianca__cta" href="#produtos-lucas-template">Criar conta gratuitamente</a>
+          <div class="BenefitsBianca__cta-wrapper">
+            <a class="BenefitsBianca__cta" href="#produtos-lucas-template">Criar conta gratuitamente</a>
+          </div>
         </div>
       </section>
       <section class="Container_home-container__aomo5 DefaultGalleries_home-default-galleries__IZInv">
@@ -4283,37 +4316,54 @@
         .BenefitsBianca__content {
           margin-top: 32px;
         }
-        .BenefitsBianca__text {
-          margin-bottom: 20px;
+        .BenefitsBianca__header h2 {
+          margin: 0 0 20px;
+          font-size: 24px;
+          color: #f5f6fa;
         }
-        .BenefitsBianca__grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-          gap: 16px;
-        }
-        .BenefitsBianca__grid article {
-          background: #111827;
-          border-radius: 14px;
-          padding: 18px;
-          border: 1px solid rgba(255, 255, 255, 0.06);
+        .BenefitsBianca__row {
           display: flex;
-          flex-direction: column;
-          gap: 8px;
+          flex-wrap: wrap;
+          align-items: flex-start;
+          gap: 24px;
+        }
+        .BenefitsBianca__item {
+          flex: 1 1 220px;
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
           color: #e5e7eb;
+          min-width: 200px;
+        }
+        .BenefitsBianca__item h3 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 600;
+        }
+        .BenefitsBianca__item p {
+          margin: 4px 0 0;
+          font-size: 14px;
+          color: #cbd5f5;
         }
         .BenefitsBianca__icon {
-          width: 40px;
-          height: 40px;
+          width: 46px;
+          height: 46px;
           border-radius: 50%;
-          background: rgba(255, 255, 255, 0.08);
+          background: #2a2f3d;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          font-size: 20px;
+          color: #f5f6fa;
+        }
+        .BenefitsBianca__icon svg {
+          width: 24px;
+          height: 24px;
+        }
+        .BenefitsBianca__cta-wrapper {
+          margin-top: 24px;
         }
         .BenefitsBianca__cta {
           display: inline-flex;
-          margin-top: 24px;
           align-items: center;
           justify-content: center;
           padding: 12px 28px;
@@ -4331,6 +4381,12 @@
           }
           .HighlightsBianca__cards {
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+          }
+          .BenefitsBianca__row {
+            gap: 16px;
+          }
+          .BenefitsBianca__item {
+            flex: 1 1 100%;
           }
         }
       </style>
