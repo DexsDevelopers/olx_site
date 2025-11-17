@@ -31,8 +31,26 @@ if (!file_exists($htmlFile)) {
 }
 $htmlContent = file_get_contents($htmlFile);
 
-// Gerar a seção de produtos dinâmica
-$produtosHTML = renderProdutosCards($listaProdutos);
+// NOVA ABORDAGEM: Inserir produtos via JavaScript diretamente no DOM
+// Isso evita que sejam removidos pelo JavaScript da OLX
+
+// Preparar dados dos produtos para JavaScript
+$produtosJSON = [];
+foreach ($listaProdutos as $produto) {
+    if ($produto['ativo'] == 1) {
+        $produtosJSON[] = [
+            'id' => $produto['id'],
+            'titulo' => $produto['titulo'],
+            'preco' => $produto['preco'],
+            'imagem' => $produto['imagem_principal'],
+            'localizacao' => $produto['localizacao'],
+            'data' => $produto['data_publicacao'],
+            'hora' => $produto['hora_publicacao'],
+            'garantia' => $produto['garantia_olx'] == 1,
+            'link' => $produto['link_pagina'] ?: 'index.html'
+        ];
+    }
+}
 
 // REMOVER o script original que tenta clonar (causa conflito)
 $htmlContent = preg_replace(
@@ -41,157 +59,212 @@ $htmlContent = preg_replace(
     $htmlContent
 );
 
-// Verificar se há produtos para exibir
-if (!empty($listaProdutos)) {
-    // Usar o padrão alternativo que é mais preciso (encontrou 8025 caracteres vs 185347)
-    // Este padrão captura apenas a section específica, não tudo desde o comentário
-    $pattern = '/<section[^>]*id="produtos-lucas-template"[^>]*>.*?<\/section>/s';
-    
-    // Substituir diretamente
-    $htmlContent = preg_replace($pattern, $produtosHTML, $htmlContent, 1);
-    
-    // Verificar se a substituição funcionou
-    if (strpos($htmlContent, $produtosHTML) === false) {
-        // Se não funcionou, tentar método alternativo mais específico
-        $sectionStart = strpos($htmlContent, '<section');
-        $sectionIdPos = strpos($htmlContent, 'id="produtos-lucas-template"');
-        
-        if ($sectionIdPos !== false) {
-            // Encontrar o início da section (pode estar antes do ID)
-            $sectionTagStart = strrpos(substr($htmlContent, 0, $sectionIdPos), '<section');
-            if ($sectionTagStart !== false) {
-                // Encontrar o fechamento correto
-                $searchPos = $sectionTagStart;
-                $depth = 0;
-                $sectionEnd = false;
-                
-                while ($searchPos < strlen($htmlContent)) {
-                    $nextOpen = strpos($htmlContent, '<section', $searchPos + 1);
-                    $nextClose = strpos($htmlContent, '</section>', $searchPos);
-                    
-                    if ($nextClose === false) break;
-                    
-                    if ($nextOpen !== false && $nextOpen < $nextClose) {
-                        $depth++;
-                        $searchPos = $nextOpen;
-                    } else {
-                        if ($depth === 0) {
-                            $sectionEnd = $nextClose + strlen('</section>');
-                            break;
-                        }
-                        $depth--;
-                        $searchPos = $nextClose;
-                    }
-                }
-                
-                if ($sectionEnd !== false) {
-                    $htmlContent = substr_replace($htmlContent, $produtosHTML, $sectionTagStart, $sectionEnd - $sectionTagStart);
-                }
-            }
-        }
-    }
-}
+// REMOVER também a section template original (não vamos mais usar)
+$htmlContent = preg_replace(
+    '/<section[^>]*id="produtos-lucas-template"[^>]*>.*?<\/section>/s',
+    '<!-- Template original removido - produtos serão inseridos via JavaScript -->',
+    $htmlContent
+);
 
-// Script que executa ANTES de tudo (no head)
+// Script que insere produtos dinamicamente (no head)
+$produtosJS = json_encode($produtosJSON, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 $scriptHead = '
 <script>
-// PROTEÇÃO ULTRA AGRESSIVA - Executa ANTES de qualquer outro script
-(function() {
-    "use strict";
+// DADOS DOS PRODUTOS - Inserir dinamicamente no DOM
+var PRODUTOS_DATA = ' . $produtosJS . ';
+
+// Função para formatar preço
+function formatarPreco(preco) {
+    return "R$ " + parseFloat(preco).toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+// Função para formatar data
+function formatarData(data, hora) {
+    if (!data) return "";
+    var partes = data.split("-");
+    if (partes.length === 3) {
+        return partes[2] + "/" + partes[1] + "/" + partes[0] + (hora ? ", " + hora : "");
+    }
+    return data + (hora ? ", " + hora : "");
+}
+
+// Função para criar e inserir produtos
+function inserirProdutos() {
+    if (!PRODUTOS_DATA || PRODUTOS_DATA.length === 0) return;
     
-    // Proteger elemento ANTES do DOM estar pronto
-    var protectedElement = null;
-    var protectionActive = false;
-    
-    function protegerElemento() {
-        if (!protectionActive) {
-            protectionActive = true;
-            
-            // Interceptar removeChild
-            var originalRemoveChild = Node.prototype.removeChild;
-            Node.prototype.removeChild = function(child) {
-                if (child && child.id === "produtos-lucas-template") {
-                    console.warn("Tentativa de remover produtos-lucas-template bloqueada!");
-                    return child;
-                }
-                return originalRemoveChild.call(this, child);
-            };
-            
-            // Interceptar remove
-            if (Element.prototype.remove) {
-                var originalRemove = Element.prototype.remove;
-                Element.prototype.remove = function() {
-                    if (this.id === "produtos-lucas-template") {
-                        console.warn("Tentativa de remover produtos-lucas-template bloqueada!");
-                        return;
-                    }
-                    return originalRemove.call(this);
-                };
-            }
-            
-            // Interceptar parentNode.removeChild
-            var originalParentRemoveChild = function() {
-                var proto = Node.prototype;
-                if (proto.removeChild) {
-                    var orig = proto.removeChild;
-                    proto.removeChild = function(child) {
-                        if (child && child.id === "produtos-lucas-template") {
-                            return child;
-                        }
-                        return orig.call(this, child);
-                    };
-                }
-            };
-            originalParentRemoveChild();
-        }
+    // Verificar se já existe (evitar duplicação)
+    var existente = document.getElementById("produtos-bianca-dynamic");
+    if (existente) {
+        existente.style.display = "block";
+        existente.style.visibility = "visible";
+        existente.style.opacity = "1";
+        return;
     }
     
-    // Executar proteção imediatamente
-    protegerElemento();
+    // Criar container
+    var container = document.createElement("section");
+    container.id = "produtos-bianca-dynamic";
+    container.className = "Container_home-container__aomo5";
+    container.style.cssText = "max-width: 1200px; margin: 24px auto 32px; display: block !important; visibility: visible !important; opacity: 1 !important; background: #111827; border-radius: 12px; padding: 16px; width: 100%; box-sizing: border-box; position: relative; z-index: 99999;";
     
-    // Executar quando possível
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", protegerElemento);
+    // Header
+    var header = document.createElement("header");
+    header.style.cssText = "display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 16px;";
+    var span = document.createElement("span");
+    span.style.cssText = "font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid #4b5563; color: #e5e7eb; background: #111827;";
+    span.textContent = "Produtos da Bianca Moraes";
+    header.appendChild(document.createElement("div"));
+    header.appendChild(span);
+    
+    // Grid de produtos
+    var grid = document.createElement("div");
+    var gridCols = window.innerWidth < 768 ? "repeat(auto-fit, minmax(140px, 1fr))" : "repeat(auto-fit, minmax(160px, 1fr))";
+    grid.style.cssText = "display: grid; grid-template-columns: " + gridCols + "; gap: 12px; width: 100%;";
+    
+    // Criar cards
+    PRODUTOS_DATA.forEach(function(produto) {
+        var article = document.createElement("article");
+        article.style.cssText = "background: #020617; border-radius: 10px; overflow: hidden; border: 1px solid #374151; display: flex; flex-direction: column; box-shadow: 0 6px 18px rgba(0,0,0,0.35); width: 100%; min-width: 0;";
+        
+        var link = document.createElement("a");
+        link.href = "produto.php?p=" + encodeURIComponent(produto.link);
+        link.style.cssText = "text-decoration: none; color: inherit; display: block; width: 100%;";
+        
+        // Imagem
+        var imgDiv = document.createElement("div");
+        imgDiv.style.cssText = "height: 150px; min-height: 120px; background: #020617; display: flex; align-items: center; justify-content: center; overflow: hidden; width: 100%;";
+        var img = document.createElement("img");
+        img.src = produto.imagem;
+        img.alt = produto.titulo;
+        img.style.cssText = "width: 100%; height: 100%; object-fit: cover; display: block;";
+        imgDiv.appendChild(img);
+        
+        // Conteúdo
+        var contentDiv = document.createElement("div");
+        contentDiv.style.cssText = "padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; width: 100%; box-sizing: border-box;";
+        
+        var titulo = document.createElement("p");
+        titulo.style.cssText = "font-size: 14px; font-weight: 600; color: #ffffff !important; margin: 0 0 6px; line-height: 1.3; word-wrap: break-word; overflow-wrap: break-word;";
+        titulo.textContent = produto.titulo;
+        contentDiv.appendChild(titulo);
+        
+        if (produto.garantia) {
+            var garantiaDiv = document.createElement("div");
+            garantiaDiv.style.cssText = "display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px;";
+            var garantiaSpan = document.createElement("span");
+            garantiaSpan.style.cssText = "display: inline-block; background-color: #f4edfc; color: #9c59d1; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px;";
+            garantiaSpan.textContent = "Garantia da OLX";
+            garantiaDiv.appendChild(garantiaSpan);
+            contentDiv.appendChild(garantiaDiv);
+        }
+        
+        var preco = document.createElement("p");
+        preco.style.cssText = "font-weight: bold; font-size: 18px; margin: 0 0 4px; color: #ffffff !important; line-height: 1.2;";
+        preco.textContent = formatarPreco(produto.preco);
+        contentDiv.appendChild(preco);
+        
+        var info = document.createElement("p");
+        info.style.cssText = "font-size: 12px; color: #9ca3af !important; margin: 0; line-height: 1.3;";
+        info.textContent = produto.localizacao + " • " + formatarData(produto.data, produto.hora);
+        contentDiv.appendChild(info);
+        
+        link.appendChild(imgDiv);
+        link.appendChild(contentDiv);
+        article.appendChild(link);
+        grid.appendChild(article);
+    });
+    
+    var contentDiv = document.createElement("div");
+    contentDiv.className = "Container_home-container__content__4lhbl";
+    contentDiv.appendChild(header);
+    contentDiv.appendChild(grid);
+    container.appendChild(contentDiv);
+    
+    // Inserir antes do </body>
+    if (document.body) {
+        document.body.appendChild(container);
     } else {
-        protegerElemento();
+        document.addEventListener("DOMContentLoaded", function() {
+            document.body.appendChild(container);
+        });
     }
     
-    // Função para forçar exibição
-    function forcarExibicao() {
-        var el = document.getElementById("produtos-lucas-template");
-        if (el) {
-            protectedElement = el;
-            
-            // Forçar com cssText (sobrescreve tudo)
-            el.style.cssText = "display: block !important; visibility: visible !important; opacity: 1 !important; height: auto !important; overflow: visible !important; position: relative !important; z-index: 99999 !important; max-width: 1200px; margin: 24px auto 32px; background: #111827; border-radius: 12px; padding: 16px; width: 100%; box-sizing: border-box;";
-            
-            // Proteger contra remoção
-            Object.defineProperty(el, "remove", {
-                value: function() { return; },
-                writable: false,
-                configurable: false
-            });
+    // Proteger contra remoção
+    Object.defineProperty(container, "remove", {
+        value: function() { 
+            setTimeout(inserirProdutos, 0);
+            return; 
+        },
+        writable: false,
+        configurable: false
+    });
+}
+
+// Executar inserção
+inserirProdutos();
+setTimeout(inserirProdutos, 0);
+setTimeout(inserirProdutos, 100);
+setTimeout(inserirProdutos, 500);
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", inserirProdutos);
+}
+
+window.addEventListener("load", inserirProdutos);
+
+// Verificar e restaurar se for removido
+setInterval(function() {
+    var el = document.getElementById("produtos-bianca-dynamic");
+    if (!el || !document.body.contains(el)) {
+        inserirProdutos();
+    } else {
+        var computed = window.getComputedStyle(el);
+        if (computed.display === "none" || computed.visibility === "hidden") {
+            el.style.display = "block";
+            el.style.visibility = "visible";
+            el.style.opacity = "1";
         }
     }
-    
-    // Executar várias vezes
-    forcarExibicao();
-    setTimeout(forcarExibicao, 0);
-    setTimeout(forcarExibicao, 10);
-    setTimeout(forcarExibicao, 50);
-    setTimeout(forcarExibicao, 100);
-    
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", forcarExibicao);
-    }
-    
-    window.addEventListener("load", forcarExibicao);
-})();
+}, 500);
 </script>
 ';
 
 // Adicionar scripts antes do fechamento do body
 $scripts = '
+<script>
+// Proteção adicional para produtos inseridos dinamicamente
+(function() {
+    var originalRemoveChild = Node.prototype.removeChild;
+    Node.prototype.removeChild = function(child) {
+        if (child && (child.id === "produtos-bianca-dynamic" || child.id === "produtos-lucas-template")) {
+            console.warn("Tentativa de remover produtos bloqueada!");
+            setTimeout(function() {
+                if (typeof inserirProdutos === "function") {
+                    inserirProdutos();
+                }
+            }, 0);
+            return child;
+        }
+        return originalRemoveChild.call(this, child);
+    };
+    
+    if (Element.prototype.remove) {
+        var originalRemove = Element.prototype.remove;
+        Element.prototype.remove = function() {
+            if (this.id === "produtos-bianca-dynamic" || this.id === "produtos-lucas-template") {
+                console.warn("Tentativa de remover produtos bloqueada!");
+                setTimeout(function() {
+                    if (typeof inserirProdutos === "function") {
+                        inserirProdutos();
+                    }
+                }, 0);
+                return;
+            }
+            return originalRemove.call(this);
+        };
+    }
+})();
+</script>
 
 <script>
 // Garantir que os produtos apareçam no mobile - VERSÃO ROBUSTA
