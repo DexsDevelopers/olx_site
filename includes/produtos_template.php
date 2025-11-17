@@ -17,7 +17,6 @@ function renderProdutosCards($produtos) {
         </header>
 
         <div class="produtos-carousel-wrapper">
-          <button type="button" class="produtos-carousel-btn produtos-carousel-btn--prev" aria-label="Ver produtos anteriores">‹</button>
           <div class="produtos-carousel-viewport" style="flex:1; min-width:0; width:100%; overflow-x:auto; scroll-snap-type:x mandatory; padding:8px 4px 12px; scrollbar-width:none; -ms-overflow-style:none; touch-action:pan-x; -webkit-overflow-scrolling:touch;">
             <div class="produtos-carousel-track" style="display:flex; flex-wrap:nowrap; gap:12px; min-width:max-content; width:max-content;">
             <?php foreach ($produtos as $produto): ?>
@@ -44,15 +43,18 @@ function renderProdutosCards($produtos) {
             <?php endforeach; ?>
             </div>
           </div>
-          <button type="button" class="produtos-carousel-btn produtos-carousel-btn--next" aria-label="Ver próximos produtos">›</button>
+          <div class="produtos-carousel-btn-group">
+            <button type="button" class="produtos-carousel-btn produtos-carousel-btn--prev" aria-label="Ver produtos anteriores">‹</button>
+            <button type="button" class="produtos-carousel-btn produtos-carousel-btn--next" aria-label="Ver próximos produtos">›</button>
+          </div>
         </div>
       </div>
     </section>
     <style id="produtos-carousel-style">
       #produtos-lucas-template .produtos-carousel-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 12px;
+        position: relative;
+        width: 100%;
+        display: block;
       }
       #produtos-lucas-template .produtos-carousel-viewport {
         flex: 1;
@@ -81,9 +83,22 @@ function renderProdutosCards($produtos) {
         min-width: max-content;
         width: max-content;
       }
+      #produtos-lucas-template .produtos-carousel-btn-group {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        pointer-events: none;
+        padding: 0 6px;
+        z-index: 5;
+      }
       #produtos-lucas-template .produtos-carousel-btn {
-        width: 34px;
-        height: 34px;
+        width: 38px;
+        height: 38px;
         border-radius: 50%;
         border: none;
         background: rgba(8, 15, 40, 0.65);
@@ -96,13 +111,14 @@ function renderProdutosCards($produtos) {
         transition: background 0.2s ease;
         flex: 0 0 auto;
         box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+        pointer-events: auto;
       }
       #produtos-lucas-template .produtos-carousel-btn:hover {
         background: rgba(8, 15, 40, 0.9);
       }
       @media (max-width: 768px) {
-        #produtos-lucas-template .produtos-carousel-wrapper {
-          gap: 8px;
+        #produtos-lucas-template .produtos-carousel-btn-group {
+          padding: 0 4px;
         }
         #produtos-lucas-template .produtos-carousel-btn {
           width: 30px;
