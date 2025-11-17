@@ -219,6 +219,7 @@ $htmlContent = preg_replace(
 
 // 5. Substituir preços genéricos (mais cuidadoso para não substituir tudo)
 // Primeiro, substituir preços que estão sozinhos ou em contextos específicos
+$htmlAntes = $htmlContent;
 $htmlContent = preg_replace(
     '/R\$[\s]*([0-9]{1,3}(?:\.[0-9]{3})*(?:,[0-9]{2})?)/i',
     $precoFormatado,
@@ -227,7 +228,9 @@ $htmlContent = preg_replace(
 
 // Log de quantas substituições foram feitas
 $precoCount = substr_count($htmlContent, $precoFormatado);
+$precoSubstituido = ($htmlContent !== $htmlAntes);
 error_log("Preço '$precoFormatado' encontrado $precoCount vezes no HTML após substituição");
+error_log("Preço foi substituído: " . ($precoSubstituido ? 'SIM' : 'NÃO'));
 
 // 6. Substituir títulos de produtos
 $tituloProduto = htmlspecialchars($produto['titulo']);
@@ -275,6 +278,27 @@ if (!empty($produto['qr_code'])) {
             $qrCodePath = str_replace('checkout/', '', $qrCodePath);
         }
         $qrCodePath = ltrim($qrCodePath, '/');
+        
+        // Verificar se o arquivo existe
+        $qrCodeFullPath = __DIR__ . '/5/4/checkout/' . $qrCodePath;
+        if (!file_exists($qrCodeFullPath)) {
+            error_log("AVISO: Arquivo QR Code não encontrado: $qrCodeFullPath");
+            // Tentar encontrar em outros locais
+            $possiblePaths = [
+                __DIR__ . '/' . $qrCodePath,
+                __DIR__ . '/5/4/checkout/' . basename($qrCodePath),
+                __DIR__ . '/5/4/checkout/qr-codes/' . basename($qrCodePath),
+            ];
+            foreach ($possiblePaths as $path) {
+                if (file_exists($path)) {
+                    $qrCodePath = str_replace(__DIR__ . '/5/4/checkout/', '', $path);
+                    error_log("QR Code encontrado em: $path, usando caminho: $qrCodePath");
+                    break;
+                }
+            }
+        } else {
+            error_log("QR Code encontrado em: $qrCodeFullPath");
+        }
     }
     
     error_log("QR Code processado: " . $qrCodePath);
