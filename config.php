@@ -14,7 +14,7 @@ define('DB_CHARSET', 'utf8mb4');
 
 // Configurações do Sistema
 define('SITE_NAME', 'Bianca Moraes');
-define('SITE_URL', 'http://localhost');
+define('SITE_URL', 'https://oix-bianca.site');
 define('ADMIN_EMAIL', 'admin@biancamoraes.com.br');
 
 // Configurações de Sessão
