@@ -85,9 +85,62 @@ if (!empty($listaProdutos)) {
     }
 }
 
-// Adicionar script de atalho para painel admin antes do fechamento do body
-$adminShortcutScript = '
+// Adicionar scripts antes do fechamento do body
+$scripts = '
 <script>
+// Garantir que os produtos apareçam no mobile
+(function() {
+    function garantirExibicaoProdutos() {
+        var template = document.getElementById("produtos-lucas-template");
+        if (template) {
+            // Forçar exibição
+            template.style.display = "block";
+            template.style.visibility = "visible";
+            template.style.opacity = "1";
+            
+            // Garantir responsividade no mobile
+            var grid = template.querySelector("div[style*=\"grid-template-columns\"]");
+            if (grid) {
+                // Ajustar para mobile (telas menores que 768px)
+                if (window.innerWidth < 768) {
+                    grid.style.gridTemplateColumns = "repeat(auto-fit, minmax(140px, 1fr))";
+                    grid.style.gap = "10px";
+                } else {
+                    grid.style.gridTemplateColumns = "repeat(auto-fit, minmax(160px, 1fr))";
+                    grid.style.gap = "12px";
+                }
+            }
+        }
+    }
+    
+    // Executar imediatamente
+    garantirExibicaoProdutos();
+    
+    // Executar quando DOM estiver pronto
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", garantirExibicaoProdutos);
+    }
+    
+    // Executar após um pequeno delay (fallback)
+    setTimeout(garantirExibicaoProdutos, 100);
+    
+    // Executar no resize para ajustar responsividade
+    window.addEventListener("resize", function() {
+        var template = document.getElementById("produtos-lucas-template");
+        if (template) {
+            var grid = template.querySelector("div[style*=\"grid-template-columns\"]");
+            if (grid && window.innerWidth < 768) {
+                grid.style.gridTemplateColumns = "repeat(auto-fit, minmax(140px, 1fr))";
+            } else if (grid) {
+                grid.style.gridTemplateColumns = "repeat(auto-fit, minmax(160px, 1fr))";
+            }
+        }
+    });
+})();
+</script>
+
+<script>
+// Script de atalho para painel admin
 (function() {
     var keySequence = [];
     var targetSequence = "admin"; // Sequência de teclas para acessar admin
@@ -125,8 +178,8 @@ $adminShortcutScript = '
 </script>
 ';
 
-// Inserir o script antes do fechamento do </body>
-$htmlContent = preg_replace('/<\/body>/i', $adminShortcutScript . '</body>', $htmlContent, 1);
+// Inserir os scripts antes do fechamento do </body>
+$htmlContent = preg_replace('/<\/body>/i', $scripts . '</body>', $htmlContent, 1);
 
 // Output do HTML final
 echo $htmlContent;
