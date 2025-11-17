@@ -4748,14 +4748,23 @@
         heroNav.style.position = 'relative';
       }
 
+      var btnWrapper = document.getElementById('hero-carousel-btn-group');
+
       if (!document.getElementById('hero-carousel-static-style')) {
         var styleTag = document.createElement('style');
         styleTag.id = 'hero-carousel-static-style';
         styleTag.textContent = `
-          .hero-carousel-btn {
+          .hero-carousel-btn-group {
             position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
+            inset: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+            padding: 0 12px;
+          }
+          .hero-carousel-btn {
+            pointer-events: auto;
             width: 38px;
             height: 38px;
             border-radius: 50%;
@@ -4769,17 +4778,15 @@
             cursor: pointer;
             z-index: 10;
             transition: background 0.2s ease;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.35);
           }
           .hero-carousel-btn:hover {
             background: rgba(0, 0, 0, 0.75);
           }
-          .hero-carousel-btn--prev {
-            left: 12px;
-          }
-          .hero-carousel-btn--next {
-            right: 12px;
-          }
           @media (max-width: 768px) {
+            .hero-carousel-btn-group {
+              padding: 0 6px;
+            }
             .hero-carousel-btn {
               width: 32px;
               height: 32px;
@@ -4799,19 +4806,34 @@
         return btn;
       }
 
-      var prevBtn = document.getElementById('hero-carousel-btn-prev');
-      var nextBtn = document.getElementById('hero-carousel-btn-next');
+      if (!btnWrapper && heroNav) {
+        btnWrapper = document.createElement('div');
+        btnWrapper.id = 'hero-carousel-btn-group';
+        btnWrapper.className = 'hero-carousel-btn-group';
+        heroNav.appendChild(btnWrapper);
+      }
+
+      var prevBtn = btnWrapper ? btnWrapper.querySelector('#hero-carousel-btn-prev') : document.getElementById('hero-carousel-btn-prev');
+      var nextBtn = btnWrapper ? btnWrapper.querySelector('#hero-carousel-btn-next') : document.getElementById('hero-carousel-btn-next');
 
       if (!prevBtn) {
         prevBtn = createButton('hero-carousel-btn hero-carousel-btn--prev', '‹');
         prevBtn.id = 'hero-carousel-btn-prev';
-        heroNav && heroNav.appendChild(prevBtn);
+        if (btnWrapper) {
+          btnWrapper.appendChild(prevBtn);
+        } else if (heroNav) {
+          heroNav.appendChild(prevBtn);
+        }
       }
 
       if (!nextBtn) {
         nextBtn = createButton('hero-carousel-btn hero-carousel-btn--next', '›');
         nextBtn.id = 'hero-carousel-btn-next';
-        heroNav && heroNav.appendChild(nextBtn);
+        if (btnWrapper) {
+          btnWrapper.appendChild(nextBtn);
+        } else if (heroNav) {
+          heroNav.appendChild(nextBtn);
+        }
       }
 
       var index = 0;
