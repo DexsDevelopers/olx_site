@@ -132,7 +132,14 @@ if (!$htmlFile || !file_exists(__DIR__ . '/' . $htmlFile)) {
 $htmlContent = file_get_contents(__DIR__ . '/' . $htmlFile);
 
 // Log para debug (verificar se está sendo processado)
-error_log("Checkout processado - Produto ID: {$produto['id']}, Arquivo: $htmlFile, QR Code: " . (!empty($produto['qr_code']) ? 'SIM' : 'NÃO') . ", PIX: " . (!empty($produto['chave_pix']) ? 'SIM' : 'NÃO'));
+error_log("=== CHECKOUT DEBUG ===");
+error_log("Produto ID: {$produto['id']}");
+error_log("Produto Título: {$produto['titulo']}");
+error_log("Link Página: {$produto['link_pagina']}");
+error_log("Preço: R$ " . number_format($produto['preco'], 2, ',', '.'));
+error_log("Arquivo HTML: $htmlFile");
+error_log("QR Code: " . (!empty($produto['qr_code']) ? $produto['qr_code'] : 'NÃO DEFINIDO'));
+error_log("PIX: " . (!empty($produto['chave_pix']) ? substr($produto['chave_pix'], 0, 50) . '...' : 'NÃO DEFINIDO'));
 
 // Formatar preço
 $precoFormatado = 'R$ ' . number_format($produto['preco'], 2, ',', '.');
@@ -140,10 +147,17 @@ $precoSemFormatacao = number_format($produto['preco'], 2, ',', '.');
 $precoNumero = number_format($produto['preco'], 0, '', '.');
 
 // Substituir preços em múltiplos formatos e locais
-// 1. Substituir "Pague por Pix" - formato mais comum
+// 1. Substituir "Pague por Pix" - formato mais comum (mais específico)
 $htmlContent = preg_replace(
-    '/<strong>Pague por Pix<\/strong><br>\s*R\$[\s]*[0-9.,]+/i',
-    '<strong>Pague por Pix</strong><br> ' . $precoFormatado,
+    '/(<strong>Pague por Pix<\/strong><br>)\s*R\$[\s]*[0-9.,]+/i',
+    '$1 ' . $precoFormatado,
+    $htmlContent
+);
+
+// 1.1. Substituir "Pague por Pix" sem <br>
+$htmlContent = preg_replace(
+    '/(<strong>Pague por Pix<\/strong>)\s*R\$[\s]*[0-9.,]+/i',
+    '$1 ' . $precoFormatado,
     $htmlContent
 );
 
@@ -168,12 +182,17 @@ $htmlContent = preg_replace(
     $htmlContent
 );
 
-// 5. Substituir preços genéricos (último, para pegar qualquer um que sobrou)
+// 5. Substituir preços genéricos (mais cuidadoso para não substituir tudo)
+// Primeiro, substituir preços que estão sozinhos ou em contextos específicos
 $htmlContent = preg_replace(
-    '/R\$[\s]*([0-9]+\.?[0-9]*[\s,.]*[0-9]*)/i',
+    '/R\$[\s]*([0-9]{1,3}(?:\.[0-9]{3})*(?:,[0-9]{2})?)/i',
     $precoFormatado,
     $htmlContent
 );
+
+// Log de quantas substituições foram feitas
+$precoCount = substr_count($htmlContent, $precoFormatado);
+error_log("Preço '$precoFormatado' encontrado $precoCount vezes no HTML após substituição");
 
 // 6. Substituir títulos de produtos
 $tituloProduto = htmlspecialchars($produto['titulo']);
@@ -240,6 +259,17 @@ if (!empty($produto['qr_code'])) {
     $afterReplace = preg_match('/<img[^>]*id=["\']pix-qr["\'][^>]*src=["\']' . preg_quote(htmlspecialchars($qrCodePath), '/') . '["\']/i', $htmlContent);
     error_log("Substituição QR Code bem-sucedida: " . ($afterReplace ? 'SIM' : 'NÃO'));
     
+    // Se não funcionou, tentar substituição mais agressiva
+    if (!$afterReplace) {
+        // Substituir qualquer img dentro de div.qr-code
+        $htmlContent = preg_replace(
+            '/(<div[^>]*class=["\'][^"\']*qr-code[^"\']*["\'][^>]*>.*?<img[^>]*src=["\'])[^"\']*(["\'][^>]*>)/is',
+            '$1' . htmlspecialchars($qrCodePath) . '$2',
+            $htmlContent
+        );
+        error_log("Tentativa de substituição QR Code via div.qr-code");
+    }
+    
     // Backup: substituir qualquer img com src="650.png" ou similar dentro de .qr-code
     $htmlContent = preg_replace(
         '/(<div[^>]*class=["\'][^"\']*qr-code[^"\']*["\'][^>]*>.*?<img[^>]*src=["\'])[^"\']*(["\'][^>]*id=["\']pix-qr["\'][^>]*>)/is',
@@ -297,7 +327,16 @@ if (!empty($produto['link_cartao'])) {
 $htmlContent = str_replace('</head>', '<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"></head>', $htmlContent);
 
 // Adicionar comentário HTML para debug (remover em produção)
-$debugComment = "<!-- Checkout processado em " . date('Y-m-d H:i:s') . " - Produto ID: {$produto['id']} - QR Code: " . (!empty($produto['qr_code']) ? 'SIM' : 'NÃO') . " - PIX: " . (!empty($produto['chave_pix']) ? 'SIM' : 'NÃO') . " -->";
+$debugComment = "<!-- 
+CHECKOUT PROCESSADO
+Data: " . date('Y-m-d H:i:s') . "
+Produto ID: {$produto['id']}
+Produto: " . htmlspecialchars($produto['titulo']) . "
+Preço: R$ " . number_format($produto['preco'], 2, ',', '.') . "
+QR Code: " . (!empty($produto['qr_code']) ? htmlspecialchars($produto['qr_code']) : 'NÃO DEFINIDO') . "
+PIX: " . (!empty($produto['chave_pix']) ? 'SIM (' . strlen($produto['chave_pix']) . ' chars)' : 'NÃO DEFINIDO') . "
+Arquivo: $htmlFile
+-->";
 $htmlContent = str_replace('</head>', $debugComment . '</head>', $htmlContent);
 
 // Output
