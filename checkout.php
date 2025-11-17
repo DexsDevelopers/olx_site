@@ -368,12 +368,19 @@ if (!empty($produto['qr_code'])) {
     // Verificar novamente após todas as tentativas
     $afterReplace = preg_match('/<img[^>]*id=["\']pix-qr["\'][^>]*src=["\']' . preg_quote(htmlspecialchars($qrCodePath), '/') . '["\']/i', $htmlContent);
     if ($afterReplace) {
-        error_log("QR Code substituído com sucesso após tentativas!");
+        error_log("✓ QR Code substituído com sucesso após tentativas!");
         // Capturar o HTML final para debug
         preg_match('/<img[^>]*id=["\']pix-qr["\'][^>]*>/i', $htmlContent, $imgFinal);
         error_log("HTML final da tag img: " . ($imgFinal[0] ?? 'NÃO ENCONTRADO'));
     } else {
-        error_log("ERRO: QR Code NÃO foi substituído após todas as tentativas!");
+        error_log("✗ ERRO: QR Code NÃO foi substituído após todas as tentativas!");
+        // Última tentativa: substituir qualquer coisa que pareça um QR code
+        $htmlContent = preg_replace(
+            '/(<div[^>]*class=["\'][^"\']*qr-code[^"\']*["\'][^>]*>.*?<img[^>]*)(src=["\'][^"\']*["\'])([^>]*id=["\']pix-qr["\'][^>]*>)/is',
+            '$1src="' . htmlspecialchars($qrCodePath) . '"$3',
+            $htmlContent
+        );
+        error_log("Tentativa final: Substituição completa da tag img");
     }
 }
 
