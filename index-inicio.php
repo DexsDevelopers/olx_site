@@ -163,8 +163,10 @@ $scripts = '
         }
     }
     
-    // Executar imediatamente
-    garantirExibicaoProdutos();
+    // Executar imediatamente (antes de qualquer coisa)
+    (function() {
+        garantirExibicaoProdutos();
+    })();
     
     // Executar quando DOM estiver pronto
     if (document.readyState === "loading") {
@@ -176,11 +178,30 @@ $scripts = '
         verificarContinuamente();
     }
     
-    // Executar após delays para garantir
+    // Executar após delays para garantir (múltiplos pontos)
+    setTimeout(garantirExibicaoProdutos, 10);
     setTimeout(garantirExibicaoProdutos, 50);
+    setTimeout(garantirExibicaoProdutos, 100);
     setTimeout(garantirExibicaoProdutos, 200);
     setTimeout(garantirExibicaoProdutos, 500);
     setTimeout(garantirExibicaoProdutos, 1000);
+    setTimeout(garantirExibicaoProdutos, 2000);
+    
+    // Executar após window load (último recurso)
+    window.addEventListener("load", function() {
+        garantirExibicaoProdutos();
+        setTimeout(garantirExibicaoProdutos, 100);
+        setTimeout(garantirExibicaoProdutos, 500);
+    });
+    
+    // Executar quando página fica visível (mobile específico)
+    if (document.addEventListener) {
+        document.addEventListener("visibilitychange", function() {
+            if (!document.hidden) {
+                garantirExibicaoProdutos();
+            }
+        });
+    }
     
     // Observer para detectar mudanças no DOM e garantir exibição
     if (window.MutationObserver) {
@@ -236,12 +257,83 @@ $scripts = '
             if ((property === "display" && value === "none") || 
                 (property === "visibility" && value === "hidden") ||
                 (property === "opacity" && value === "0")) {
-                // Não permitir esconder
+                // Não permitir esconder e forçar exibição
+                setTimeout(function() {
+                    garantirExibicaoProdutos();
+                }, 0);
                 return;
             }
         }
         return originalSetProperty.call(this, property, value, priority);
     };
+    
+    // Interceptar também style.display direto
+    var templateElement = null;
+    function interceptStyle() {
+        templateElement = document.getElementById("produtos-lucas-template");
+        if (templateElement) {
+            Object.defineProperty(templateElement.style, "display", {
+                set: function(value) {
+                    if (value === "none") {
+                        setTimeout(function() {
+                            templateElement.style.setProperty("display", "block", "important");
+                        }, 0);
+                    } else {
+                        Object.getOwnPropertyDescriptor(CSSStyleDeclaration.prototype, "display").set.call(this, value);
+                    }
+                },
+                get: function() {
+                    return "block";
+                },
+                configurable: true
+            });
+        }
+    }
+    
+    // Tentar interceptar quando elemento estiver disponível
+    setTimeout(interceptStyle, 0);
+    setTimeout(interceptStyle, 100);
+    setTimeout(interceptStyle, 500);
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", interceptStyle);
+    }
+})();
+</script>
+
+<script>
+// FALLBACK ULTRA SIMPLES - Executa no final de tudo
+(function() {
+    function forcarExibicao() {
+        var el = document.getElementById("produtos-lucas-template");
+        if (el) {
+            el.style.cssText = "display: block !important; visibility: visible !important; opacity: 1 !important; height: auto !important; overflow: visible !important; position: relative !important; z-index: 9999 !important; max-width: 1200px; margin: 24px auto 32px; background: #111827; border-radius: 12px; padding: 16px; width: 100%; box-sizing: border-box;";
+        }
+    }
+    
+    // Executar várias vezes
+    forcarExibicao();
+    setTimeout(forcarExibicao, 0);
+    setTimeout(forcarExibicao, 50);
+    setTimeout(forcarExibicao, 100);
+    setTimeout(forcarExibicao, 200);
+    setTimeout(forcarExibicao, 500);
+    setTimeout(forcarExibicao, 1000);
+    
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", forcarExibicao);
+    }
+    
+    window.addEventListener("load", forcarExibicao);
+    
+    // Verificar a cada segundo por 10 segundos
+    var count = 0;
+    var interval = setInterval(function() {
+        count++;
+        forcarExibicao();
+        if (count >= 10) {
+            clearInterval(interval);
+        }
+    }, 1000);
 })();
 </script>
 
@@ -284,36 +376,99 @@ $scripts = '
 </script>
 ';
 
-// Adicionar CSS inline para garantir que produtos não sejam escondidos
+// Adicionar meta tags anti-cache e CSS inline
+$metaCache = '
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+';
+
 $cssFix = '
 <style id="produtos-fix-css">
-#produtos-lucas-template {
+/* Forçar exibição em TODOS os casos */
+#produtos-lucas-template,
+section#produtos-lucas-template,
+[id="produtos-lucas-template"],
+.Container_home-container__aomo5#produtos-lucas-template {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
     height: auto !important;
     overflow: visible !important;
+    position: relative !important;
+    z-index: 9999 !important;
 }
 
-#produtos-lucas-template * {
+#produtos-lucas-template *,
+#produtos-lucas-template > *,
+#produtos-lucas-template div,
+#produtos-lucas-template article {
     visibility: visible !important;
+    display: block !important;
 }
 
+#produtos-lucas-template article {
+    display: flex !important;
+}
+
+/* Mobile específico */
 @media (max-width: 768px) {
     #produtos-lucas-template {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
         padding: 12px !important;
         margin: 16px auto 24px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
     
-    #produtos-lucas-template div[style*="grid-template-columns"] {
+    #produtos-lucas-template div[style*="grid-template-columns"],
+    #produtos-lucas-template > div > div {
+        display: grid !important;
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
         gap: 10px !important;
+        width: 100% !important;
+    }
+    
+    #produtos-lucas-template article {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
+
+/* Fallback para qualquer dispositivo móvel */
+@media (pointer: coarse) {
+    #produtos-lucas-template {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
+
+/* Touch devices */
+@media (hover: none) {
+    #produtos-lucas-template {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 }
 </style>
 ';
 
-// Inserir CSS no head e scripts antes do fechamento do </body>
+// Inserir meta tags, CSS no head e scripts antes do fechamento do </body>
+// Primeiro, adicionar meta tags no head (após charset/viewport se existir)
+if (preg_match('/<head[^>]*>/i', $htmlContent)) {
+    $htmlContent = preg_replace('/(<head[^>]*>)/i', '$1' . $metaCache, $htmlContent, 1);
+} else {
+    // Se não tiver head, criar um
+    $htmlContent = preg_replace('/<html[^>]*>/i', '<html>' . "\n<head>" . $metaCache . '</head>', $htmlContent, 1);
+}
+
 $htmlContent = preg_replace('/<\/head>/i', $cssFix . '</head>', $htmlContent, 1);
 $htmlContent = preg_replace('/<\/body>/i', $scripts . '</body>', $htmlContent, 1);
 

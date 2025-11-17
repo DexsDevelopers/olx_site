@@ -7,7 +7,7 @@ function renderProdutosCards($produtos) {
     $produtosObj = new Produtos();
     ob_start();
     ?>
-    <section id="produtos-lucas-template" class="Container_home-container__aomo5" style="max-width: 1200px; margin: 24px auto 32px; display: block !important; background:#111827; border-radius:12px; padding:16px 16px 20px; width: 100%; box-sizing: border-box;">
+    <section id="produtos-lucas-template" class="Container_home-container__aomo5" style="max-width: 1200px; margin: 24px auto 32px; display: block !important; visibility: visible !important; opacity: 1 !important; background:#111827; border-radius:12px; padding:16px 16px 20px; width: 100%; box-sizing: border-box; position: relative; z-index: 9999;">
       <div class="Container_home-container__content__4lhbl">
         <header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 16px;">
           <div></div>
