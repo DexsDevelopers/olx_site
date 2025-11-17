@@ -88,15 +88,38 @@ if (!empty($listaProdutos)) {
 // Adicionar scripts antes do fechamento do body
 $scripts = '
 <script>
-// Garantir que os produtos apareçam no mobile
+// DESABILITAR o script original que tenta clonar (pode estar causando conflito)
 (function() {
+    // Sobrescrever o event listener original se existir
+    var originalAddEventListener = document.addEventListener;
+    document.addEventListener = function(type, listener, options) {
+        if (type === "DOMContentLoaded" && listener.toString().indexOf("produtos-lucas-template") !== -1 && listener.toString().indexOf("cloneNode") !== -1) {
+            // Não executar o listener original que clona
+            return;
+        }
+        return originalAddEventListener.call(this, type, listener, options);
+    };
+})();
+</script>
+
+<script>
+// Garantir que os produtos apareçam no mobile - VERSÃO ROBUSTA
+(function() {
+    var tentativas = 0;
+    var maxTentativas = 50; // Verificar por até 5 segundos (50 x 100ms)
+    
     function garantirExibicaoProdutos() {
         var template = document.getElementById("produtos-lucas-template");
         if (template) {
-            // Forçar exibição
-            template.style.display = "block";
-            template.style.visibility = "visible";
-            template.style.opacity = "1";
+            // Forçar exibição com múltiplas propriedades
+            template.style.setProperty("display", "block", "important");
+            template.style.setProperty("visibility", "visible", "important");
+            template.style.setProperty("opacity", "1", "important");
+            template.style.setProperty("height", "auto", "important");
+            template.style.setProperty("overflow", "visible", "important");
+            
+            // Remover qualquer classe que possa estar escondendo
+            template.classList.remove("d-none", "hidden", "invisible");
             
             // Garantir responsividade no mobile
             var grid = template.querySelector("div[style*=\"grid-template-columns\"]");
@@ -110,6 +133,33 @@ $scripts = '
                     grid.style.gap = "12px";
                 }
             }
+            
+            // Verificar se ainda está escondido e forçar novamente
+            var computedStyle = window.getComputedStyle(template);
+            if (computedStyle.display === "none" || computedStyle.visibility === "hidden" || computedStyle.opacity === "0") {
+                template.style.setProperty("display", "block", "important");
+                template.style.setProperty("visibility", "visible", "important");
+                template.style.setProperty("opacity", "1", "important");
+            }
+            
+            return true; // Sucesso
+        }
+        return false; // Template não encontrado ainda
+    }
+    
+    // Função para verificar continuamente
+    function verificarContinuamente() {
+        if (tentativas < maxTentativas) {
+            tentativas++;
+            if (!garantirExibicaoProdutos()) {
+                // Se não encontrou, tentar novamente
+                setTimeout(verificarContinuamente, 100);
+            } else {
+                // Encontrou e configurou, mas continuar verificando para garantir
+                setTimeout(function() {
+                    garantirExibicaoProdutos();
+                }, 500);
+            }
         }
     }
     
@@ -118,16 +168,57 @@ $scripts = '
     
     // Executar quando DOM estiver pronto
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", garantirExibicaoProdutos);
+        document.addEventListener("DOMContentLoaded", function() {
+            garantirExibicaoProdutos();
+            verificarContinuamente();
+        });
+    } else {
+        verificarContinuamente();
     }
     
-    // Executar após um pequeno delay (fallback)
-    setTimeout(garantirExibicaoProdutos, 100);
+    // Executar após delays para garantir
+    setTimeout(garantirExibicaoProdutos, 50);
+    setTimeout(garantirExibicaoProdutos, 200);
+    setTimeout(garantirExibicaoProdutos, 500);
+    setTimeout(garantirExibicaoProdutos, 1000);
+    
+    // Observer para detectar mudanças no DOM e garantir exibição
+    if (window.MutationObserver) {
+        var observer = new MutationObserver(function(mutations) {
+            var template = document.getElementById("produtos-lucas-template");
+            if (template) {
+                var computedStyle = window.getComputedStyle(template);
+                if (computedStyle.display === "none" || computedStyle.visibility === "hidden") {
+                    garantirExibicaoProdutos();
+                }
+            }
+        });
+        
+        // Observar mudanças no body
+        if (document.body) {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ["style", "class"]
+            });
+        } else {
+            document.addEventListener("DOMContentLoaded", function() {
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ["style", "class"]
+                });
+            });
+        }
+    }
     
     // Executar no resize para ajustar responsividade
     window.addEventListener("resize", function() {
         var template = document.getElementById("produtos-lucas-template");
         if (template) {
+            garantirExibicaoProdutos();
             var grid = template.querySelector("div[style*=\"grid-template-columns\"]");
             if (grid && window.innerWidth < 768) {
                 grid.style.gridTemplateColumns = "repeat(auto-fit, minmax(140px, 1fr))";
@@ -136,6 +227,21 @@ $scripts = '
             }
         }
     });
+    
+    // Interceptar tentativas de esconder o elemento
+    var originalSetProperty = CSSStyleDeclaration.prototype.setProperty;
+    CSSStyleDeclaration.prototype.setProperty = function(property, value, priority) {
+        var element = this;
+        if (element && element.ownerElement && element.ownerElement.id === "produtos-lucas-template") {
+            if ((property === "display" && value === "none") || 
+                (property === "visibility" && value === "hidden") ||
+                (property === "opacity" && value === "0")) {
+                // Não permitir esconder
+                return;
+            }
+        }
+        return originalSetProperty.call(this, property, value, priority);
+    };
 })();
 </script>
 
@@ -178,7 +284,37 @@ $scripts = '
 </script>
 ';
 
-// Inserir os scripts antes do fechamento do </body>
+// Adicionar CSS inline para garantir que produtos não sejam escondidos
+$cssFix = '
+<style id="produtos-fix-css">
+#produtos-lucas-template {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    overflow: visible !important;
+}
+
+#produtos-lucas-template * {
+    visibility: visible !important;
+}
+
+@media (max-width: 768px) {
+    #produtos-lucas-template {
+        padding: 12px !important;
+        margin: 16px auto 24px !important;
+    }
+    
+    #produtos-lucas-template div[style*="grid-template-columns"] {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+        gap: 10px !important;
+    }
+}
+</style>
+';
+
+// Inserir CSS no head e scripts antes do fechamento do </body>
+$htmlContent = preg_replace('/<\/head>/i', $cssFix . '</head>', $htmlContent, 1);
 $htmlContent = preg_replace('/<\/body>/i', $scripts . '</body>', $htmlContent, 1);
 
 // Output do HTML final
