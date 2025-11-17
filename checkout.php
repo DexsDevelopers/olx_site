@@ -202,30 +202,90 @@ $htmlContent = preg_replace(
 
 // 7. Substituir QR Code se fornecido
 if (!empty($produto['qr_code'])) {
-    $qrCodePath = $produto['qr_code'];
+    $qrCodePath = trim($produto['qr_code']);
+    
+    // Log para debug (remover em produção)
+    error_log("QR Code original: " . $qrCodePath);
+    
     // Se for caminho relativo, ajustar para funcionar no checkout
     if (!preg_match('/^https?:\/\//', $qrCodePath)) {
-        // Se o arquivo está em 5/4/checkout/, manter o caminho relativo
-        if (strpos($qrCodePath, '5/4/checkout/') === 0 || strpos($qrCodePath, 'checkout/') === 0) {
-            // Já está correto
-        } else {
-            // Adicionar caminho base se necessário
-            $qrCodePath = '5/4/checkout/' . ltrim($qrCodePath, '/');
+        // Se o arquivo está em 5/4/checkout/, remover o prefixo para caminho relativo
+        if (strpos($qrCodePath, '5/4/checkout/') === 0) {
+            $qrCodePath = str_replace('5/4/checkout/', '', $qrCodePath);
+        } elseif (strpos($qrCodePath, 'checkout/') === 0) {
+            $qrCodePath = str_replace('checkout/', '', $qrCodePath);
         }
+        // Se começa com /, remover
+        $qrCodePath = ltrim($qrCodePath, '/');
     }
+    
+    error_log("QR Code processado: " . $qrCodePath);
+    
+    // Múltiplas tentativas de substituição com diferentes padrões
+    // Padrão 1: ID exato - mais específico
     $htmlContent = preg_replace(
-        '/<img[^>]*id="pix-qr"[^>]*src="[^"]*"[^>]*>/i',
+        '/<img[^>]*id=["\']pix-qr["\'][^>]*>/i',
         '<img src="' . htmlspecialchars($qrCodePath) . '" alt="QR Code Pix" id="pix-qr" width="220">',
+        $htmlContent
+    );
+    
+    // Padrão 2: Qualquer img dentro de .qr-code
+    $htmlContent = preg_replace(
+        '/(<div[^>]*class=["\'][^"\']*qr-code[^"\']*["\'][^>]*>.*?<img[^>]*src=["\'])[^"\']*(["\'][^>]*>)/is',
+        '$1' . htmlspecialchars($qrCodePath) . '$2',
+        $htmlContent
+    );
+    
+    // Padrão 3: Substituir qualquer src que contenha .png, .jpeg, .jpg no contexto do QR code
+    $htmlContent = preg_replace(
+        '/(<img[^>]*src=["\'])[^"\']*\.(png|jpeg|jpg|webp)(["\'][^>]*id=["\']pix-qr[^>]*>)/i',
+        '$1' . htmlspecialchars($qrCodePath) . '$3',
+        $htmlContent
+    );
+    
+    // Padrão 4: Substituir qualquer img com id pix-qr, independente do src atual
+    $htmlContent = preg_replace(
+        '/(<img[^>]*id=["\']pix-qr["\'][^>]*src=["\'])[^"\']*(["\'])/i',
+        '$1' . htmlspecialchars($qrCodePath) . '$2',
         $htmlContent
     );
 }
 
 // 8. Substituir Chave PIX se fornecida
 if (!empty($produto['chave_pix'])) {
-    $chavePix = htmlspecialchars($produto['chave_pix']);
+    $chavePix = trim($produto['chave_pix']);
+    
+    // Log para debug (remover em produção)
+    error_log("Chave PIX original: " . substr($chavePix, 0, 50) . "...");
+    
+    $chavePixEscaped = htmlspecialchars($chavePix);
+    
+    // Múltiplas tentativas de substituição com diferentes padrões
+    // Padrão 1: ID exato com span - mais específico
     $htmlContent = preg_replace(
-        '/<span[^>]*id="pix-code"[^>]*>.*?<\/span>/i',
-        '<span id="pix-code">' . $chavePix . '</span>',
+        '/<span[^>]*id=["\']pix-code["\'][^>]*>.*?<\/span>/is',
+        '<span id="pix-code">' . $chavePixEscaped . '</span>',
+        $htmlContent
+    );
+    
+    // Padrão 2: Qualquer conteúdo dentro do span com id pix-code (não greedy)
+    $htmlContent = preg_replace(
+        '/(<span[^>]*id=["\']pix-code["\'][^>]*>)[^<]*(<\/span>)/i',
+        '$1' . $chavePixEscaped . '$2',
+        $htmlContent
+    );
+    
+    // Padrão 3: Substituir dentro de .pix-code-box
+    $htmlContent = preg_replace(
+        '/(<div[^>]*class=["\'][^"\']*pix-code-box[^"\']*["\'][^>]*>.*?<span[^>]*id=["\']pix-code["\'][^>]*>)[^<]*(<\/span>)/is',
+        '$1' . $chavePixEscaped . '$2',
+        $htmlContent
+    );
+    
+    // Padrão 4: Substituir qualquer conteúdo entre tags span com id pix-code
+    $htmlContent = preg_replace(
+        '/(<span[^>]*id=["\']pix-code["\'][^>]*>)([^<]+)(<\/span>)/i',
+        '$1' . $chavePixEscaped . '$3',
         $htmlContent
     );
 }
