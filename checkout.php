@@ -207,52 +207,42 @@ $htmlContent = preg_replace(
 if (!empty($produto['qr_code'])) {
     $qrCodePath = trim($produto['qr_code']);
     
-    // Log para debug (remover em produção)
+    // Log para debug
+    error_log("=== QR CODE SUBSTITUIÇÃO ===");
     error_log("QR Code original: " . $qrCodePath);
+    error_log("Produto ID: " . $produto['id']);
     
     // Se for caminho relativo, ajustar para funcionar no checkout
     if (!preg_match('/^https?:\/\//', $qrCodePath)) {
-        // Se o arquivo está em 5/4/checkout/, manter o caminho relativo ao diretório checkout
+        // Se o arquivo está em 5/4/checkout/, remover o prefixo para caminho relativo
         if (strpos($qrCodePath, '5/4/checkout/') === 0) {
-            // Remover apenas o prefixo 5/4/checkout/ para que fique relativo ao diretório do checkout
             $qrCodePath = str_replace('5/4/checkout/', '', $qrCodePath);
         } elseif (strpos($qrCodePath, 'checkout/') === 0) {
             $qrCodePath = str_replace('checkout/', '', $qrCodePath);
         }
-        // Se começa com /, remover
         $qrCodePath = ltrim($qrCodePath, '/');
-        
-        // Se o caminho não começa com http e não está vazio, garantir que seja relativo
-        // O arquivo HTML do checkout está em 5/4/checkout/, então caminhos relativos funcionam
     }
     
     error_log("QR Code processado: " . $qrCodePath);
     
-    // Múltiplas tentativas de substituição com diferentes padrões
-    // Padrão 1: ID exato - mais específico
+    // Verificar se o HTML contém o elemento antes de substituir
+    $hasPixQr = preg_match('/<img[^>]*id=["\']pix-qr["\'][^>]*>/i', $htmlContent);
+    error_log("HTML contém id='pix-qr': " . ($hasPixQr ? 'SIM' : 'NÃO'));
+    
+    // Substituição mais agressiva - substituir TUDO que tenha id="pix-qr"
     $htmlContent = preg_replace(
         '/<img[^>]*id=["\']pix-qr["\'][^>]*>/i',
         '<img src="' . htmlspecialchars($qrCodePath) . '" alt="QR Code Pix" id="pix-qr" width="220">',
         $htmlContent
     );
     
-    // Padrão 2: Qualquer img dentro de .qr-code
-    $htmlContent = preg_replace(
-        '/(<div[^>]*class=["\'][^"\']*qr-code[^"\']*["\'][^>]*>.*?<img[^>]*src=["\'])[^"\']*(["\'][^>]*>)/is',
-        '$1' . htmlspecialchars($qrCodePath) . '$2',
-        $htmlContent
-    );
+    // Verificar se a substituição funcionou
+    $afterReplace = preg_match('/<img[^>]*id=["\']pix-qr["\'][^>]*src=["\']' . preg_quote(htmlspecialchars($qrCodePath), '/') . '["\']/i', $htmlContent);
+    error_log("Substituição QR Code bem-sucedida: " . ($afterReplace ? 'SIM' : 'NÃO'));
     
-    // Padrão 3: Substituir qualquer src que contenha .png, .jpeg, .jpg no contexto do QR code
+    // Backup: substituir qualquer img com src="650.png" ou similar dentro de .qr-code
     $htmlContent = preg_replace(
-        '/(<img[^>]*src=["\'])[^"\']*\.(png|jpeg|jpg|webp)(["\'][^>]*id=["\']pix-qr[^>]*>)/i',
-        '$1' . htmlspecialchars($qrCodePath) . '$3',
-        $htmlContent
-    );
-    
-    // Padrão 4: Substituir qualquer img com id pix-qr, independente do src atual
-    $htmlContent = preg_replace(
-        '/(<img[^>]*id=["\']pix-qr["\'][^>]*src=["\'])[^"\']*(["\'])/i',
+        '/(<div[^>]*class=["\'][^"\']*qr-code[^"\']*["\'][^>]*>.*?<img[^>]*src=["\'])[^"\']*(["\'][^>]*id=["\']pix-qr["\'][^>]*>)/is',
         '$1' . htmlspecialchars($qrCodePath) . '$2',
         $htmlContent
     );
@@ -262,34 +252,29 @@ if (!empty($produto['qr_code'])) {
 if (!empty($produto['chave_pix'])) {
     $chavePix = trim($produto['chave_pix']);
     
-    // Log para debug (remover em produção)
-    error_log("Chave PIX original: " . substr($chavePix, 0, 50) . "...");
+    // Log para debug
+    error_log("=== CHAVE PIX SUBSTITUIÇÃO ===");
+    error_log("Chave PIX original (primeiros 50): " . substr($chavePix, 0, 50) . "...");
+    error_log("Produto ID: " . $produto['id']);
     
     $chavePixEscaped = htmlspecialchars($chavePix);
     
-    // Múltiplas tentativas de substituição com diferentes padrões
-    // Padrão 1: ID exato com span - mais específico
+    // Verificar se o HTML contém o elemento antes de substituir
+    $hasPixCode = preg_match('/<span[^>]*id=["\']pix-code["\'][^>]*>/i', $htmlContent);
+    error_log("HTML contém id='pix-code': " . ($hasPixCode ? 'SIM' : 'NÃO'));
+    
+    // Substituição mais agressiva - substituir TUDO que tenha id="pix-code"
     $htmlContent = preg_replace(
         '/<span[^>]*id=["\']pix-code["\'][^>]*>.*?<\/span>/is',
         '<span id="pix-code">' . $chavePixEscaped . '</span>',
         $htmlContent
     );
     
-    // Padrão 2: Qualquer conteúdo dentro do span com id pix-code (não greedy)
-    $htmlContent = preg_replace(
-        '/(<span[^>]*id=["\']pix-code["\'][^>]*>)[^<]*(<\/span>)/i',
-        '$1' . $chavePixEscaped . '$2',
-        $htmlContent
-    );
+    // Verificar se a substituição funcionou
+    $afterReplace = preg_match('/<span[^>]*id=["\']pix-code["\'][^>]*>' . preg_quote(substr($chavePixEscaped, 0, 30), '/') . '/i', $htmlContent);
+    error_log("Substituição Chave PIX bem-sucedida: " . ($afterReplace ? 'SIM' : 'NÃO'));
     
-    // Padrão 3: Substituir dentro de .pix-code-box
-    $htmlContent = preg_replace(
-        '/(<div[^>]*class=["\'][^"\']*pix-code-box[^"\']*["\'][^>]*>.*?<span[^>]*id=["\']pix-code["\'][^>]*>)[^<]*(<\/span>)/is',
-        '$1' . $chavePixEscaped . '$2',
-        $htmlContent
-    );
-    
-    // Padrão 4: Substituir qualquer conteúdo entre tags span com id pix-code
+    // Backup: substituir conteúdo dentro do span
     $htmlContent = preg_replace(
         '/(<span[^>]*id=["\']pix-code["\'][^>]*>)([^<]+)(<\/span>)/i',
         '$1' . $chavePixEscaped . '$3',
@@ -310,6 +295,10 @@ if (!empty($produto['link_cartao'])) {
 
 // Adicionar parâmetro de versão para evitar cache
 $htmlContent = str_replace('</head>', '<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"></head>', $htmlContent);
+
+// Adicionar comentário HTML para debug (remover em produção)
+$debugComment = "<!-- Checkout processado em " . date('Y-m-d H:i:s') . " - Produto ID: {$produto['id']} - QR Code: " . (!empty($produto['qr_code']) ? 'SIM' : 'NÃO') . " - PIX: " . (!empty($produto['chave_pix']) ? 'SIM' : 'NÃO') . " -->";
+$htmlContent = str_replace('</head>', $debugComment . '</head>', $htmlContent);
 
 // Output
 echo $htmlContent;
