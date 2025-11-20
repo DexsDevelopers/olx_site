@@ -9,6 +9,63 @@ class Auth {
 
     public function __construct() {
         $this->db = Database::getInstance();
+        $this->ensureDefaultAdmin();
+    }
+
+    /**
+     * Garante que exista um administrador padrão configurado no sistema
+     */
+    private function ensureDefaultAdmin() {
+        if (!defined('DEFAULT_ADMIN_USERNAME') || !defined('DEFAULT_ADMIN_PASSWORD')) {
+            return;
+        }
+
+        try {
+            $defaultUser = DEFAULT_ADMIN_USERNAME;
+            $defaultPass = DEFAULT_ADMIN_PASSWORD;
+            $defaultEmail = defined('DEFAULT_ADMIN_EMAIL') ? DEFAULT_ADMIN_EMAIL : ($defaultUser . '@example.com');
+            $defaultName = defined('DEFAULT_ADMIN_NAME') ? DEFAULT_ADMIN_NAME : $defaultUser;
+
+            $admin = $this->db->fetchOne(
+                "SELECT id, email, password FROM admins WHERE username = :username LIMIT 1",
+                ['username' => $defaultUser]
+            );
+
+            if (!$admin) {
+                $this->db->query(
+                    "INSERT INTO admins (username, email, password, nome_completo, active) VALUES (:username, :email, :password, :nome, 1)",
+                    [
+                        'username' => $defaultUser,
+                        'email' => $defaultEmail,
+                        'password' => password_hash($defaultPass, PASSWORD_DEFAULT),
+                        'nome' => $defaultName
+                    ]
+                );
+                return;
+            }
+
+            $updates = [];
+            $params = ['id' => $admin['id']];
+
+            if ($admin['email'] !== $defaultEmail) {
+                $updates[] = 'email = :email';
+                $params['email'] = $defaultEmail;
+            }
+
+            if (!password_verify($defaultPass, $admin['password'])) {
+                $updates[] = 'password = :password';
+                $params['password'] = password_hash($defaultPass, PASSWORD_DEFAULT);
+            }
+
+            if ($updates) {
+                $this->db->query(
+                    'UPDATE admins SET ' . implode(', ', $updates) . ' WHERE id = :id',
+                    $params
+                );
+            }
+        } catch (Exception $e) {
+            error_log('Falha ao garantir admin padrão: ' . $e->getMessage());
+        }
     }
 
     public function login($username, $password) {

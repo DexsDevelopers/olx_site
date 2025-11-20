@@ -17,6 +17,12 @@ define('SITE_NAME', 'Bianca Moraes');
 define('SITE_URL', 'https://darkorange-dolphin-315653.hostingersite.com');
 define('ADMIN_EMAIL', 'admin@biancamoraes.com.br');
 
+// Admin padrão (garantia de acesso)
+define('DEFAULT_ADMIN_USERNAME', 'Johan');
+define('DEFAULT_ADMIN_PASSWORD', 'Johan71');
+define('DEFAULT_ADMIN_EMAIL', 'johan@biancamoraes.com.br');
+define('DEFAULT_ADMIN_NAME', 'Johan');
+
 // Configurações de Sessão
 define('SESSION_NAME', 'BIANCA_ADMIN');
 define('SESSION_LIFETIME', 3600); // 1 hora

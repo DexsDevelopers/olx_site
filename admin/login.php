@@ -138,26 +138,6 @@ try {
         .form-group input::placeholder {
             color: var(--text-muted);
         }
-        .info-box {
-            background: var(--bg-card);
-            padding: 1rem;
-            border-radius: var(--radius-sm);
-            margin-top: 1.5rem;
-            font-size: 0.8125rem;
-            color: var(--text-light);
-            border: 1px solid var(--border);
-        }
-        .info-box strong {
-            color: var(--text);
-        }
-        .info-box code {
-            background: var(--dark-tertiary);
-            padding: 0.125rem 0.375rem;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.75rem;
-            color: var(--primary);
-        }
     </style>
 </head>
 <body>
@@ -186,12 +166,6 @@ try {
 
             <button type="submit" class="btn-login">Entrar</button>
         </form>
-
-        <div class="info-box">
-            <strong>Credenciais padrão:</strong><br>
-            Usuário: <code>admin</code><br>
-            Senha: <code>admin123</code>
-        </div>
     </div>
 </body>
 </html>

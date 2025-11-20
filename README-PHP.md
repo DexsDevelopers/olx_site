@@ -46,7 +46,7 @@ http://localhost/public_html(4)/install.php
 Este script irá:
 - Criar o banco de dados `bianca_moraes`
 - Criar as tabelas `admins` e `produtos`
-- Inserir o admin padrão (usuário: `admin`, senha: `admin123`)
+- Inserir o admin padrão (usuário: `Johan`, senha: `Johan71`)
 - Inserir 5 produtos de exemplo
 
 ### 3. Acessar Painel Admin
@@ -57,8 +57,8 @@ http://localhost/public_html(4)/admin/login.php
 ```
 
 **Credenciais padrão:**
-- Usuário: `admin`
-- Senha: `admin123`
+- Usuário: `Johan`
+- Senha: `Johan71`
 
 ⚠️ **IMPORTANTE:** Após a instalação, delete o arquivo `install.php` por segurança!
 

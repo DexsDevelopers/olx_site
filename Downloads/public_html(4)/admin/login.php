@@ -139,23 +139,6 @@ try {
             color: #c33;
             border: 1px solid #fcc;
         }
-        .info-box {
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            font-size: 13px;
-            color: #666;
-        }
-        .info-box strong {
-            color: #333;
-        }
-        .info-box code {
-            background: #e0e0e0;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
     </style>
 </head>
 <body>
@@ -184,12 +167,6 @@ try {
 
             <button type="submit" class="btn-login">Entrar</button>
         </form>
-
-        <div class="info-box">
-            <strong>Credenciais padrão:</strong><br>
-            Usuário: <code>admin</code><br>
-            Senha: <code>admin123</code>
-        </div>
     </div>
 </body>
 </html>
