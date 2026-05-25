@@ -96,12 +96,110 @@
   -->
   <style id="__jsx-3828654658">
     :root {
-      --font-family-primary: 'Nunito Sans', 'Nunito Sans Fallback'
+      --font-family-primary: 'Nunito Sans', 'Nunito Sans Fallback';
+      --color-neutral-130: #222;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito Sans', Arial, sans-serif; }
+    body { background: #fff; color: #222; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    button { cursor: pointer; font-family: inherit; background: none; border: none; }
+
+    /* Header container */
+    .Header_home-header-container__Na3Yu { position: sticky; top: 0; z-index: 100; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+    .olx-header { width: 100%; background: #fff; }
+    .olx-header__main-menu { width: 100%; }
+
+    /* Primary menu row */
+    .olx-header__primary-menu { display: flex !important; align-items: center; justify-content: space-between; max-width: 1280px; margin: 0 auto; padding: 0 16px; height: 60px; gap: 16px; }
+    .olx-header__column-left { display: flex !important; align-items: center; gap: 16px; flex: 1; min-width: 0; }
+    .olx-header__column-right { display: flex !important; align-items: center; flex-shrink: 0; }
+
+    /* Logo */
+    .olx-header__olx-container { display: flex; align-items: center; flex-shrink: 0; }
+    .olx-logo-olx { width: 40px; height: 40px; }
+    .olx-logo-olx--o { fill: #ff7a00; }
+    .olx-logo-olx--l { fill: #002f34; }
+    .olx-logo-olx--x { fill: #002f34; }
+
+    /* Skip links */
+    .olx-header__skip-links { position: absolute; left: -9999px; }
+    .olx-header__skip-links:focus { left: 8px; top: 8px; z-index: 999; background: #fff; padding: 4px 8px; }
+
+    /* Search bar */
+    .olx-header__search { flex: 1; max-width: 640px; min-width: 0; }
+
+    /* Nav items */
+    .olx-header__items { display: flex !important; align-items: center; gap: 2px; }
+    .olx-header__item { display: flex !important; align-items: center; }
+    .olx-header__link { display: flex !important; flex-direction: column; align-items: center; gap: 2px; padding: 6px 8px; border-radius: 8px; color: #555; font-size: 12px; }
+    .olx-header__link:hover { background: #f5f5f5; }
+    .olx-header__logo-wrapper { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; }
+    .olx-header__label { font-size: 11px; white-space: nowrap; }
+    .olx-header__notification-wrapper { position: relative; display: flex; }
+    .olx-header__profile-skeleton { width: 36px; height: 36px; border-radius: 50%; background: #e5e5e5; }
+    .olx-header__search { flex: 1; }
+
+    /* Navbar (secondary / mobile bottom) */
+    .olx-navbar { background: #fff; border-top: 1px solid #e5e5e5; }
+    .olx-navbar__items { display: flex !important; align-items: center; justify-content: space-around; max-width: 1280px; margin: 0 auto; padding: 0 8px; }
+    .olx-navbar__item { display: flex !important; align-items: center; }
+    .olx-navbar__link { display: flex !important; flex-direction: column; align-items: center; gap: 2px; padding: 8px 10px; color: #555; font-size: 11px; border-radius: 8px; }
+    .olx-navbar__link:hover { color: #ff7a00; }
+    .olx-navbar__caption { font-size: 10px; white-space: nowrap; }
+    .olx-navbar__icon-wrapper { display: flex; align-items: center; justify-content: center; }
+    .olx-navbar__middle-item .olx-navbar__link { color: #ff7a00; }
+
+    @media (min-width: 768px) {
+      .olx-navbar { border-top: none; border-bottom: 1px solid #e5e5e5; }
+      .olx-navbar__items { justify-content: flex-start; gap: 4px; height: 44px; }
+    }
+    @media (max-width: 767px) {
+      .olx-navbar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 99; box-shadow: 0 -1px 4px rgba(0,0,0,.1); }
     }
 
-    * {
-      font-family: 'Nunito Sans', 'Nunito Sans Fallback'
-    }
+    /* Main content */
+    .Main_home-main__W_Tp3 { max-width: 1280px; margin: 0 auto; padding: 16px; padding-bottom: 80px; }
+    @media (min-width: 768px) { .Main_home-main__W_Tp3 { padding-bottom: 16px; } }
+    .Container_home-container__aomo5 { width: 100%; margin-bottom: 16px; }
+
+    /* Location */
+    .Location_home-location__button__bh0kY { display: flex; align-items: center; gap: 6px; border: 1px solid #e5e5e5; border-radius: 8px; padding: 6px 12px; font-size: 14px; color: #555; }
+
+    /* Spinner */
+    .animate-spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* Modal */
+    .olx-modal { display: none; }
+    .olx-modal[data-show="true"] { display: flex; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; align-items: center; justify-content: center; }
+    .olx-modal__dialog { background: #fff; border-radius: 12px; width: 100%; max-width: 480px; max-height: var(--modal-max-height, 80vh); overflow: hidden; display: flex; flex-direction: column; }
+    .olx-modal__topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid #e5e5e5; }
+    .olx-modal__topbar-button { background: none; border: none; padding: 4px; color: #555; cursor: pointer; }
+    .olx-modal__content { padding: 16px; overflow-y: auto; }
+
+    /* Carousel */
+    .olx-core-carousel { position: relative; overflow: hidden; }
+    .olx-core-carousel__viewport { overflow: hidden; }
+    .olx-core-carousel__container { display: flex; gap: 8px; }
+    .olx-core-carousel__item, .olx-carousel__item { flex-shrink: 0; }
+
+    /* Category pills */
+    .SlimCategoriesCarouselCardContent_slim-category-carousel-card-content___vjBB { display: flex !important; align-items: center; gap: 6px; padding: 8px 12px; border: 1px solid #e5e5e5; border-radius: 20px; white-space: nowrap; font-size: 13px; color: #222; }
+    .SlimCategoriesCarouselCardContent_slim-category-carousel-card-content___vjBB:hover { border-color: #ff7a00; background: #fff5ee; }
+    .SlimCategoriesCarouselCardContent_slim-category-carousel-card-content__dummy__6x7_h { border-color: #ff7a00; }
+
+    /* Utils */
+    .olx-core-visually-hidden, .olx-visually-hidden { position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; white-space: nowrap !important; }
+    .olx-d-flex { display: flex; }
+    .olx-ai-center { align-items: center; }
+    .olx-core-link { text-decoration: none; color: inherit; }
+    .olx-core-link--main { color: #002f34; }
+    .olx-core-link--grey { color: #555; }
+    .olx-text--title-small { font-size: 16px; font-weight: 700; }
+    .olx-text--body-small { font-size: 13px; }
+    .olx-core-skeleton, .olx-skeleton { display: block; background: #e5e5e5; border-radius: 4px; width: var(--width,100%); height: var(--height,16px); }
+    .z-10 { z-index: 10; }
   </style>
 </head>
 
