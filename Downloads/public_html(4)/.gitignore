@@ -1,0 +1,50 @@
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Arquivos de backup
+*.bak
+*_backup.*
+*.old
+
+# Logs
+*.log
+logs/
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Node modules (se houver)
+node_modules/
+package-lock.json
+
+# Arquivos de ambiente
+.env
+.env.local
+
+# Arquivos de debug/teste (remover após produção)
+debug-*.php
+test-*.php
+*-teste.php
+*-debug.php
+install*.php
+fix-*.php
+GUIA-*.md
+PASSO-*.md
+
+# Uploads (opcional - descomente se não quiser versionar)
+# uploads/
+
+# Arquivos de IDE
+.vscode/
+.idea/
+.cursor/
+
+# Arquivos de sistema Windows
+*.lnk
+
