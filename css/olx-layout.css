@@ -1,0 +1,551 @@
+/* ========================================================
+   OLX Layout - Header, Navbar e elementos principais
+   Substitui os CSS externos bloqueados da OLX
+   ======================================================== */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito Sans', Arial, sans-serif;
+  background: #fff;
+  color: #222;
+}
+
+a { color: inherit; text-decoration: none; }
+ul { list-style: none; }
+button { cursor: pointer; font-family: inherit; }
+
+/* ---- Visually Hidden ---- */
+.olx-core-visually-hidden,
+.olx-visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0,0,0,0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* ---- HEADER ---- */
+.olx-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #fff;
+  border-bottom: 1px solid #e5e5e5;
+  width: 100%;
+}
+
+.olx-header__main-menu {
+  width: 100%;
+}
+
+.olx-header__primary-menu {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px;
+  height: 60px;
+  gap: 16px;
+}
+
+.olx-header__column-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.olx-header__column-right {
+  display: flex;
+  align-items: center;
+}
+
+/* Logo OLX */
+.olx-header__olx-container {
+  display: flex;
+  align-items: center;
+}
+
+.olx-logo-olx {
+  width: 40px;
+  height: 40px;
+}
+
+.olx-logo-olx--o { fill: #ff7a00; }
+.olx-logo-olx--l { fill: #002f34; }
+.olx-logo-olx--x { fill: #002f34; }
+
+/* Skip links */
+.olx-header__skip-links {
+  position: absolute;
+  left: -9999px;
+}
+.olx-header__skip-links:focus {
+  left: 8px;
+  top: 8px;
+  z-index: 999;
+  background: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* Search */
+.olx-header__search {
+  flex: 1;
+  max-width: 640px;
+}
+
+/* Nav items (right side) */
+.olx-header__items {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.olx-header__item {
+  display: flex;
+  align-items: center;
+}
+
+.olx-header__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  color: #555;
+  font-size: 12px;
+  transition: background 0.15s;
+}
+
+.olx-header__link:hover {
+  background: #f5f5f5;
+  color: #222;
+}
+
+.olx-header__logo-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.olx-header__label {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.olx-header__notification-wrapper {
+  position: relative;
+  display: flex;
+}
+
+/* Profile skeleton */
+.olx-header__profile-skeleton {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e5e5e5;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Skeleton genérico */
+.olx-core-skeleton,
+.olx-skeleton {
+  background: linear-gradient(90deg, #e5e5e5 25%, #f0f0f0 50%, #e5e5e5 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  display: block;
+  width: var(--width, 100%);
+  height: var(--height, 16px);
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ---- NAVBAR (bottom nav mobile / secondary desktop) ---- */
+.olx-navbar {
+  background: #fff;
+  border-top: 1px solid #e5e5e5;
+}
+
+@media (min-width: 768px) {
+  .olx-navbar {
+    border-top: none;
+    border-bottom: 1px solid #e5e5e5;
+    background: #fff;
+  }
+}
+
+.olx-navbar__items {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+@media (min-width: 768px) {
+  .olx-navbar__items {
+    justify-content: flex-start;
+    gap: 4px;
+    height: 44px;
+  }
+}
+
+/* Mobile: fixed bottom bar */
+@media (max-width: 767px) {
+  .olx-navbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 99;
+    box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
+  }
+}
+
+.olx-navbar__item {
+  display: flex;
+  align-items: center;
+}
+
+.olx-navbar__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: #555;
+  font-size: 11px;
+  background: none;
+  border: none;
+  transition: color 0.15s;
+}
+
+.olx-navbar__link:hover {
+  color: #ff7a00;
+}
+
+.olx-navbar__caption {
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.olx-navbar__icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.olx-navbar__middle-item .olx-navbar__link {
+  color: #ff7a00;
+}
+
+/* ---- MAIN CONTENT ---- */
+.Main_home-main__W_Tp3 {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px;
+  padding-bottom: 80px; /* espaço para navbar mobile */
+}
+
+@media (min-width: 768px) {
+  .Main_home-main__W_Tp3 {
+    padding-bottom: 16px;
+  }
+}
+
+.Container_home-container__aomo5 {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.Container_home-container__content__4lhbl {
+  width: 100%;
+}
+
+/* ---- LOCATION ---- */
+.Location_home-location__DUMdz {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.Location_home-location__button__bh0kY {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+}
+
+.Location_home-location__button__bh0kY:hover {
+  border-color: #aaa;
+}
+
+/* ---- SPINNER ---- */
+.olx-core-spinner {
+  display: inline-block;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ---- MODAL ---- */
+.olx-modal {
+  display: none;
+}
+
+.olx-modal[data-show="true"] {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+
+.olx-modal__dialog {
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 480px;
+  max-height: var(--modal-max-height, 80vh);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.olx-modal__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.olx-modal__topbar-button {
+  background: none;
+  border: none;
+  padding: 4px;
+  border-radius: 4px;
+  color: #555;
+}
+
+.olx-modal__content {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+/* ---- CAROUSEL ---- */
+.olx-core-carousel {
+  position: relative;
+  overflow: hidden;
+}
+
+.olx-core-carousel__viewport {
+  overflow: hidden;
+}
+
+.olx-core-carousel__container {
+  display: flex;
+  gap: 8px;
+  transition: transform 0.3s ease;
+}
+
+.olx-core-carousel__item,
+.olx-carousel__item {
+  flex-shrink: 0;
+}
+
+.olx-core-carousel__prev,
+.olx-core-carousel__next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.olx-core-carousel__prev { left: 4px; }
+.olx-core-carousel__next { right: 4px; }
+
+.olx-core-carousel__prev--hide,
+.olx-core-carousel__next--hide { display: none; }
+
+/* ---- CARDS / LINKS ---- */
+.olx-core-link { color: inherit; text-decoration: none; }
+.olx-core-link--main { color: #002f34; }
+.olx-core-link--grey { color: #555; }
+
+.olx-card {
+  background: #fff;
+  border-radius: 8px;
+}
+
+/* Slim Categories */
+.SlimCategoriesCarouselCardContent_slim-category-carousel-card-container__g_YJo {
+  padding: 4px;
+}
+
+.SlimCategoriesCarouselCardContent_slim-category-carousel-card-content___vjBB {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 20px;
+  white-space: nowrap;
+  font-size: 13px;
+  color: #222;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.SlimCategoriesCarouselCardContent_slim-category-carousel-card-content___vjBB:hover {
+  border-color: #ff7a00;
+  background: #fff5ee;
+}
+
+/* Dummy indica card */
+.SlimCategoriesCarouselCardContent_slim-category-carousel-card-content__dummy__6x7_h {
+  border-color: #ff7a00;
+}
+
+/* ---- TYPOGRAPHY ---- */
+.olx-text { display: block; }
+.olx-text--title-small { font-size: 16px; font-weight: 700; }
+.olx-text--body-small { font-size: 13px; }
+.olx-text--regular { font-weight: 400; }
+.typo-caption { font-size: 11px; }
+
+/* ---- BUTTONS ---- */
+.olx-core-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 999px;
+  padding: 0 16px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.olx-core-button--neutral {
+  background: #f5f5f5;
+  color: #222;
+}
+
+.olx-core-button--link {
+  background: transparent;
+  color: #ff7a00;
+  padding: 0;
+  height: auto;
+}
+
+.olx-core-button--only-icon {
+  width: 40px;
+  padding: 0;
+}
+
+.olx-core-button--small {
+  height: 32px;
+  font-size: 13px;
+  padding: 0 12px;
+}
+
+.olx-core-button--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---- DS FLEX UTILS ---- */
+.olx-d-flex { display: flex; }
+.olx-ai-center { align-items: center; }
+
+/* ---- TOOLTIP ---- */
+.olx-core-tooltip { position: relative; display: inline-flex; }
+
+/* ---- z-10 ---- */
+.z-10 { z-index: 10; }
+
+/* ---- HOME HEADER CONTAINER ---- */
+.Header_home-header-container__Na3Yu {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* ---- ACCORDION ---- */
+.AccordionHeader_accordionHeader__mT_LK {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  cursor: pointer;
+  font-weight: 600;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+/* ---- CAROUSEL ARROWS ---- */
+.SlimCategoriesCarouselSlide_slim-categories-carousel__arrow-container__InZM4,
+.SlimCategoriesCarouselSlide_slim-categories-carousel__arrow-container__slim_categories__sntUM {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.CarouselUtilities_carousel-utilities__arrows-container__8UCCF {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---- COLOR TOKENS FALLBACK ---- */
+:root {
+  --color-neutral-130: #222;
+  --font-family-primary: 'Nunito Sans', Arial, sans-serif;
+}
